@@ -197,3 +197,13 @@ model PremiumRequest {
   @@index([status, createdAt])
   @@index([userId])
 }
+
+// Fila única de configuración editable desde /admin/config. El id fijo es el
+// truco para que no pueda haber dos: todo upsert apunta a esta misma clave.
+model Config {
+  id              String   @id @default("singleton")
+  usdToBobRate    Float    @default(9.15)
+  premiumPriceUsd Float    @default(1.99)
+  qrImageUrl      String   @default("/images/yolo-qr-promptforge.png")
+  updatedAt       DateTime @updatedAt
+}

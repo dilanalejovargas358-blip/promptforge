@@ -5,12 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-// Tipo de cambio fijo: el precio se cobra en bolivianos por YOLO Pago, así que
-// el monto es el que ve el usuario y no debe bailar entre visitas.
-const EXCHANGE_RATE = 9.15; // Bs por USD
-const PRICE_USD = 1.99;
-const TOTAL_BS = Math.ceil(PRICE_USD * EXCHANGE_RATE); // 19 Bs
-
 // La verificación es manual: la espera da 15 minutos de margen antes de derivar
 // a soporte, y el sondeo busca la aprobación sin que el usuario recargue.
 const WAIT_SECONDS = 15 * 60;
@@ -20,12 +14,24 @@ const REDIRECT_MS = 3_000;
 interface Props {
   isPremium: boolean;
   hasPending: boolean;
+  /** Los tres precios vienen de Config (/admin/config), no de constantes. */
+  priceUsd: number;
+  exchangeRate: number;
+  totalBs: number;
+  qrImageUrl: string;
 }
 
 // form → waiting → approved | rejected
 type View = "form" | "waiting" | "approved" | "rejected";
 
-export default function PremiumManualOptions({ isPremium, hasPending }: Props) {
+export default function PremiumManualOptions({
+  isPremium,
+  hasPending,
+  priceUsd,
+  exchangeRate,
+  totalBs,
+  qrImageUrl,
+}: Props) {
   const router = useRouter();
   const [open, setOpen] = useState<string | null>("yolo");
   const [view, setView] = useState<View>(hasPending ? "waiting" : "form");
@@ -224,7 +230,7 @@ export default function PremiumManualOptions({ isPremium, hasPending }: Props) {
       id: "yolo",
       icon: "🇧🇴",
       name: "Pago por QR - Bolivia",
-      note: `${TOTAL_BS} Bs · disponible ahora`,
+      note: `${totalBs} Bs · disponible ahora`,
       enabled: true,
     },
     {
@@ -253,8 +259,8 @@ export default function PremiumManualOptions({ isPremium, hasPending }: Props) {
             <span className="gradient-text">💎 Hazte Premium</span>
           </h1>
           <p className="mt-3 text-muted">
-            ${PRICE_USD}/mes · {TOTAL_BS} Bs al tipo de cambio de{" "}
-            {EXCHANGE_RATE.toFixed(2)} Bs/USD
+            ${priceUsd}/mes · {totalBs} Bs al tipo de cambio de{" "}
+            {exchangeRate.toFixed(2)} Bs/USD
           </p>
         </div>
 
@@ -304,8 +310,8 @@ export default function PremiumManualOptions({ isPremium, hasPending }: Props) {
                       </p>
                       <div className="relative h-56 w-56 overflow-hidden rounded-xl border-2 border-white/20">
                         <Image
-                          src="/images/yolo-qr-promptforge.png"
-                          alt="QR de YOLO Pago para pagar PromptForge Premium"
+                          src={qrImageUrl}
+                          alt="QR de pago de PromptForge Premium"
                           fill
                           className="object-contain"
                         />
@@ -313,7 +319,7 @@ export default function PremiumManualOptions({ isPremium, hasPending }: Props) {
                       <p className="text-center text-sm font-medium text-white">
                         Monto a pagar:{" "}
                         <span className="gradient-text font-bold">
-                          {TOTAL_BS} Bs
+                          {totalBs} Bs
                         </span>
                       </p>
                     </div>
@@ -323,7 +329,7 @@ export default function PremiumManualOptions({ isPremium, hasPending }: Props) {
                       <li>Escanea el QR de arriba</li>
                       <li>
                         Verifica que el monto sea{" "}
-                        <strong className="text-white">{TOTAL_BS} Bs</strong>
+                        <strong className="text-white">{totalBs} Bs</strong>
                       </li>
                       <li>Confirma el pago con tu PIN</li>
                       <li>Pulsa el botón de abajo para avisarnos</li>

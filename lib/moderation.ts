@@ -15,6 +15,7 @@ export type ModerationCategory =
   | "self_harm"
   | "drugs_weapons"
   | "malware"
+  | "fraud"
   | "profanity";
 
 export interface ModerationResult {
@@ -35,6 +36,7 @@ export const MESSAGES: Record<ModerationCategory, string> = {
     "Si necesitas ayuda, contacta una línea de crisis. No procesamos este contenido.",
   drugs_weapons: "No permitimos contenido sobre drogas o armas.",
   malware: "No permitimos contenido sobre hacking malicioso.",
+  fraud: "No permitimos contenido sobre estafas o fraudes.",
   profanity: "Evita el lenguaje ofensivo.",
 };
 
@@ -103,6 +105,23 @@ const TERMS: Record<ModerationCategory, string[]> = {
     "robar contrasenas", "steal passwords", "crackear contrasenas",
     "explotar vulnerabilidad", "exploit vulnerabilit",
   ],
+  // VACÍA A PROPÓSITO: el fraude lo caza solo el clasificador (capa 2).
+  //
+  // "Estafa" y "fraude" no son actos como "matar" o "bomba": son el vocabulario
+  // de la prevención, así que no codifican intención. Medido con estos términos
+  // puestos, la capa 1 bloqueaba "cómo proteger a mis padres de las estafas
+  // telefónicas", "escribe un artículo sobre cómo detectar fraudes financieros"
+  // y "analiza este correo para saber si es un scam". La lista local no distingue
+  // "cómo estafar" de "cómo protegerse de estafas"; el clasificador sí, y ese
+  // caso está verificado que devuelve `deepseek:fraud`.
+  //
+  // Descartados además "golpe" (corriente en español: "un golpe de suerte",
+  // "golpe de estado") y "timo" (dentro de "timonel"/"Timo"), mismo criterio por
+  // el que no se incluye "con" en inglés.
+  //
+  // Si algún día se añaden términos aquí, recordar que el matcher aplica \w{0,4}
+  // al final: "estafa" ya cubriría "estafador" y "fraud" cubriría "fraude".
+  fraud: [],
   profanity: [
     "hijo de puta", "hijueputa", "puta madre", "malparido",
     "fuck you", "motherfucker", "piece of shit",

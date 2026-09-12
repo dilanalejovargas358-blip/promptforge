@@ -61,6 +61,9 @@ export async function POST(req: Request) {
     // Moderación en dos capas ANTES de cobrar: si no pasa, no se gasta crédito.
     const mod = await moderateTextDeep(prompt);
     if (!mod.ok) {
+      console.warn(
+        `Moderación: optimización rechazada (${mod.category ?? "?"} · ${mod.matchedTerm ?? "?"}) por ${user.email}`
+      );
       return NextResponse.json(
         { error: mod.reason, code: "MODERATION_REJECTED" },
         { status: 400 }

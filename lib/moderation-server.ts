@@ -32,7 +32,7 @@ const TIMEOUT_MS = 8000;
 /**
  * Categorías que el modelo puede devolver → nuestras ModerationCategory.
  *
- * Las seis del prompt coinciden con nuestras categorías de nombre, así que el
+ * Las siete del prompt coinciden con nuestras categorías de nombre, así que el
  * mapeo es la identidad; existe igualmente para (a) descartar cualquier cosa que
  * el modelo se invente y (b) dejar el contrato explícito si el prompt cambia.
  * `profanity` no se pide al modelo: la cubre la lista local, que es más fiable
@@ -45,10 +45,11 @@ const CATEGORY_MAP: Record<string, ModerationCategory> = {
   self_harm: "self_harm",
   drugs_weapons: "drugs_weapons",
   malware: "malware",
+  fraud: "fraud",
 };
 
 const CLASSIFIER_SYSTEM_PROMPT = `Eres un clasificador de contenido. Analiza el siguiente texto y responde SOLO con un JSON:
-{ "safe": true/false, "category": "violence|hate|sexual|self_harm|drugs_weapons|malware|null", "reason": "breve motivo" }
+{ "safe": true/false, "category": "violence|hate|sexual|self_harm|drugs_weapons|malware|fraud|null", "reason": "breve motivo" }
 
 Categorías a detectar:
 - violence: violencia explícita, guerra, tortura, asesinato
@@ -56,7 +57,8 @@ Categorías a detectar:
 - sexual: contenido sexual explícito
 - self_harm: autolesión, suicidio
 - drugs_weapons: drogas, armas, explosivos
-- malware: hacking malicioso, phishing
+- malware: hacking malicioso, phishing técnico (robo de credenciales, malware)
+- fraud: estafas, phishing de ingeniería social, fraudes financieros, suplantación de identidad para engañar
 
 Responde solo el JSON, sin explicaciones.`;
 

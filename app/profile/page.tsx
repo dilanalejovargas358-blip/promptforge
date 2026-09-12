@@ -13,11 +13,7 @@ export const metadata: Metadata = {
   title: "Mi Perfil",
 };
 
-interface ProfilePageProps {
-  searchParams?: { upgrade?: string };
-}
-
-export default async function ProfilePage({ searchParams }: ProfilePageProps) {
+export default async function ProfilePage() {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
@@ -44,7 +40,6 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
   // applyRaysRegen), así que el tope se aplica aquí para no mostrar saldos
   // heredados por encima de RAYS_MAX.
   const rays = Math.min(user.rays, RAYS_MAX);
-  const upgrade = searchParams?.upgrade;
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-12 sm:px-6">
@@ -116,24 +111,6 @@ export default async function ProfilePage({ searchParams }: ProfilePageProps) {
           <div className="text-xs text-muted">Apoyos recibidos</div>
         </div>
       </div>
-
-      {/* Aviso tras intento de pago Premium */}
-      {upgrade === "success" && (
-        <div className="fade-up mt-4 rounded-2xl border border-secondary/40 bg-secondary/10 p-4 text-center text-sm font-semibold text-secondary">
-          🎉 ¡Bienvenido a Premium! Ya tienes 25 créditos IA para usar las
-          herramientas de IA durante este mes.
-        </div>
-      )}
-      {upgrade === "error" && (
-        <div className="fade-up mt-4 rounded-2xl border border-red-400/40 bg-red-400/10 p-4 text-center text-sm font-semibold text-red-400">
-          No pudimos procesar tu pago. Inténtalo de nuevo.
-        </div>
-      )}
-      {upgrade === "cancelled" && (
-        <div className="fade-up mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 text-center text-sm font-semibold text-muted">
-          Has cancelado la suscripción. Si cambias de opinión, ¡te esperamos! 💛
-        </div>
-      )}
 
       {/* Monedero de créditos + Premium */}
       <div className="mt-6">

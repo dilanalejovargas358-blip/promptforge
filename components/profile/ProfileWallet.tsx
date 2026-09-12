@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import CreditCounter from "@/components/ui/CreditCounter";
 import { RAYS_MAX } from "@/lib/constants";
 import type { CreditTransaction } from "@/types";
@@ -27,8 +28,6 @@ export default function ProfileWallet({
   premiumUntil,
   earned,
 }: ProfileWalletProps) {
-  const [upgrading, setUpgrading] = useState(false);
-  const [upgradeError, setUpgradeError] = useState<string | null>(null);
   const [data, setData] = useState<WalletData>({
     isPremiumActive: initialPremiumActive,
     premiumUntil: premiumUntil ? new Date(premiumUntil).toISOString() : null,
@@ -59,24 +58,6 @@ export default function ProfileWallet({
       active = false;
     };
   }, []);
-
-  async function startUpgrade() {
-    setUpgradeError(null);
-    setUpgrading(true);
-    try {
-      const res = await fetch("/api/checkout", { method: "POST" });
-      const d = await res.json();
-      if (res.ok && d.url) {
-        window.location.href = d.url;
-        return;
-      }
-      setUpgradeError(d?.error ?? "No se pudo iniciar el pago.");
-    } catch {
-      setUpgradeError("Error de conexión.");
-    } finally {
-      setUpgrading(false);
-    }
-  }
 
   const premium = data.isPremiumActive;
   const typeIcon: Record<string, string> = {
@@ -166,17 +147,12 @@ export default function ProfileWallet({
             <li className="text-white">💵 $1.99 / mes</li>
           </ul>
           {!premium && (
-            <>
-              <button
-                type="button"
-                onClick={startUpgrade}
-                disabled={upgrading}
-                className="btn-secondary mt-4 w-full disabled:opacity-50"
-              >
-                {upgrading ? "Redirigiendo a Stripe…" : "Hazte Premium — $1.99/mes"}
-              </button>
-              {upgradeError && <p className="mt-3 text-xs text-red-400">{upgradeError}</p>}
-            </>
+            <Link
+              href="/profile/premium-manual"
+              className="btn-secondary mt-4 block w-full text-center"
+            >
+              Hazte Premium — $1.99/mes
+            </Link>
           )}
         </div>
       </div>

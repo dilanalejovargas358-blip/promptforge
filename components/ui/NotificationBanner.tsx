@@ -49,10 +49,12 @@ export default function NotificationBanner() {
       {items.map((n) => (
         <div
           key={n.id}
-          className="glass flex flex-col gap-5 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 sm:flex-row sm:items-start sm:justify-between"
+          className={`glass flex flex-col gap-5 rounded-2xl border p-4 sm:flex-row sm:items-start sm:justify-between ${boxClass(n.type)}`}
         >
           <div className="min-w-0">
-            <p className="font-bold text-red-400">⚠️ {n.title}</p>
+            <p className={`font-bold ${titleClass(n.type)}`}>
+              {n.type === "PREMIUM_APPROVED" ? "✅" : "⚠️"} {n.title}
+            </p>
             <p className="mt-1 text-sm text-white/85">{n.message}</p>
             <p className="mt-1.5 text-xs text-muted">{formatDate(n.createdAt)}</p>
           </div>
@@ -63,7 +65,7 @@ export default function NotificationBanner() {
                 onClick={() => markRead(n.id)}
                 className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-white/20"
               >
-                Ver prompt
+                Ver más
               </Link>
             )}
             <button
@@ -78,6 +80,19 @@ export default function NotificationBanner() {
       ))}
     </div>
   );
+}
+
+// El banner nace para avisos de moderación (rojos). El Premium aprobado es una
+// buena noticia y se pinta en verde; el rechazo usa el estilo por defecto y se
+// distingue por el motivo que va en el mensaje.
+function boxClass(type: string): string {
+  return type === "PREMIUM_APPROVED"
+    ? "border-secondary/40 bg-secondary/10"
+    : "border-red-500/30 bg-red-500/10";
+}
+
+function titleClass(type: string): string {
+  return type === "PREMIUM_APPROVED" ? "text-secondary" : "text-red-400";
 }
 
 function formatDate(iso: string): string {

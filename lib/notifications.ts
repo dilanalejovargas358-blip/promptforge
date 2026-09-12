@@ -3,7 +3,9 @@ import { prisma } from "@/lib/prisma";
 export type NotificationType =
   | "PROMPT_UNDER_REVIEW"
   | "PROMPT_REMOVED"
-  | "REPORT_DISMISSED";
+  | "REPORT_DISMISSED"
+  | "PREMIUM_APPROVED"
+  | "PREMIUM_REJECTED";
 
 interface NotifyInput {
   userId: string;

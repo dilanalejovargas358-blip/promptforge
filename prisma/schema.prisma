@@ -32,6 +32,7 @@ model User {
   reportsMade   Report[]            @relation("ReportAuthor")
   transactions  Transaction[]
   notifications Notification[]
+  premiumRequests PremiumRequest[]
 
   accounts Account[]
   sessions Session[]
@@ -167,6 +168,7 @@ model Notification {
   id      String  @id @default(cuid())
   userId  String
   // "PROMPT_UNDER_REVIEW" | "PROMPT_REMOVED" | "REPORT_DISMISSED"
+  // | "PREMIUM_APPROVED" | "PREMIUM_REJECTED"
   type    String
   title   String
   message String
@@ -178,4 +180,20 @@ model Notification {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, read, createdAt])
+}
+
+model PremiumRequest {
+  id              String    @id @default(cuid())
+  userId          String
+  // PENDING | APPROVED | REJECTED
+  status          String    @default("PENDING")
+  createdAt       DateTime  @default(now())
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  rejectionReason String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([userId])
 }

@@ -6,6 +6,10 @@ export const metadata: Metadata = {
   title: "El mercado más seguro de prompts para IA",
 };
 
+// El Hero lee cifras reales de la BD; sin esto la portada se prerenderizaría en
+// el build y quedaría con los números congelados. Mismo valor que /explore.
+export const revalidate = 30;
+
 const FEATURES = [
   {
     icon: "🛡️",
@@ -33,17 +37,17 @@ export default function HomePage() {
       <Hero />
 
       {/* Sección de características */}
-      <section className="relative mx-auto max-w-6xl px-6 py-16">
+      <section className="relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
         <div className="mb-10 text-center">
           <span className="text-xs font-bold uppercase tracking-[0.3em] text-secondary">
             Por qué PromptForge
           </span>
-          <h2 className="mt-3 text-3xl font-extrabold md:text-5xl">
+          <h2 className="mt-3 text-3xl font-extrabold sm:text-4xl md:text-5xl">
             Construido para la <span className="gradient-text">nueva economía creativa</span>
           </h2>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-3 md:gap-6">
           {FEATURES.map((f, i) => (
             <div
               key={f.title}
@@ -55,28 +59,36 @@ export default function HomePage() {
               >
                 {f.icon}
               </div>
-              <h3 className="mt-5 text-xl font-bold">{f.title}</h3>
+              <h3 className="mt-5 text-lg font-bold sm:text-xl">{f.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">{f.text}</p>
             </div>
           ))}
         </div>
 
-        {/* CTA final */}
-        <div className="fade-up mt-12 overflow-hidden rounded-3xl bg-gradient-to-r from-primary via-accent to-secondary p-[1.5px]">
-          <div className="glass-strong flex flex-col items-center gap-6 rounded-[calc(1.5rem-1.5px)] px-8 py-12 text-center">
-            <h3 className="text-3xl font-extrabold md:text-4xl">
+        {/* CTA final: borde glass con un tinte de acento, en lugar del
+            degradado rojo→morado→turquesa. */}
+        <div className="fade-up mt-12 overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-[1px]">
+          <div className="glass-strong relative flex flex-col items-center gap-6 overflow-hidden rounded-[calc(1.5rem-1px)] px-5 py-12 text-center sm:px-8">
+            <div className="pointer-events-none absolute -top-28 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-accent/15 blur-[90px]" />
+
+            <h3 className="relative text-2xl font-extrabold sm:text-3xl md:text-4xl">
               ¿Listo para <span className="gradient-text">forjar</span> tu primer prompt?
             </h3>
-            <p className="max-w-xl text-muted">
+            <p className="relative max-w-xl text-muted">
               Únete hoy gratis y empieza a compartir tu talento con miles de
               creadores alrededor del mundo.
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="relative flex w-full flex-col items-stretch justify-center gap-3 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
               <GlowButtonLink href="/register" size="lg" variant="primary">
                 Crear cuenta gratis
               </GlowButtonLink>
-              <GlowButtonLink href="/explore" size="lg" variant="ghost">
-                Ver la vitrina →
+              <GlowButtonLink
+                href="/explore"
+                size="lg"
+                variant="ghost"
+                className="border border-white/20 !text-white transition-colors hover:border-white/45"
+              >
+                Ver prompts →
               </GlowButtonLink>
             </div>
           </div>

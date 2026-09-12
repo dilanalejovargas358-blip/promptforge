@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getDbUser, recordTransaction } from "@/lib/credits";
+import { getDbUser } from "@/lib/credits";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +33,10 @@ export async function GET(req: Request) {
       return NextResponse.redirect(`${appUrl}/profile?upgrade=error`);
     }
 
-    // Activar Premium 1 mes a partir de ahora.
+    // Activa Premium 1 mes para que el usuario lo vea al volver del pago.
+    // Los créditos IA NO se acreditan aquí: los concede el webhook de Stripe
+    // (checkout.session.completed), que es la única fuente de verdad. Si se
+    // acreditasen en ambos sitios, un solo pago daría 50 créditos.
     const premiumUntil = new Date();
     premiumUntil.setMonth(premiumUntil.getMonth() + 1);
 
@@ -41,7 +44,6 @@ export async function GET(req: Request) {
       where: { id: user.id },
       data: { isPremium: true, premiumUntil },
     });
-    await recordTransaction(user.id, "PREMIUM", 500, "Suscripción Premium (1 mes)");
 
     return NextResponse.redirect(`${appUrl}/profile?upgrade=success`);
   } catch (error) {

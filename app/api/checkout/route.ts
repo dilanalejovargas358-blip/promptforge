@@ -33,6 +33,9 @@ export async function POST() {
   form.set("cancel_url", `${appUrl}/profile?upgrade=cancelled`);
   form.set("client_reference_id", user.id);
   form.set("metadata[userId]", user.id);
+  // Copia el userId a la Suscripción: el webhook lo necesita en las renovaciones
+  // (invoice.payment_succeeded), donde no hay sesión de checkout que consultar.
+  form.set("subscription_data[metadata][userId]", user.id);
 
   try {
     const res = await fetch("https://api.stripe.com/v1/checkout/sessions", {

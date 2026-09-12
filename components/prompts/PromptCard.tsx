@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PromptCardData } from "@/types";
 import { categoryMeta } from "@/components/ui/CategoryIcon";
 import SupportPromptButton from "@/components/prompts/SupportPromptButton";
+import ReportPromptButton from "@/components/prompts/ReportPromptButton";
 
 export default function PromptCard({
   prompt,
@@ -12,6 +13,7 @@ export default function PromptCard({
 }) {
   const meta = categoryMeta(prompt.category);
   const delay = (index % 9) * 80;
+  const tags = safeParseTags(prompt.tags);
 
   return (
     <div
@@ -30,7 +32,7 @@ export default function PromptCard({
         className={`h-1.5 w-full bg-gradient-to-r ${meta.bar} opacity-70 transition-opacity duration-300 group-hover:opacity-100`}
       />
 
-      <div className="flex flex-1 flex-col p-5">
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
         {/* Cabecera: badge categoría + patrocinado */}
         <div className="flex flex-wrap items-center gap-2">
           <span
@@ -61,8 +63,28 @@ export default function PromptCard({
           {prompt.description}
         </p>
 
+        {/* Tags */}
+        {tags.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="rounded-full bg-white/5 px-2.5 py-0.5 text-[10px] text-muted"
+              >
+                #{tag}
+              </span>
+            ))}
+            {tags.length > 3 && (
+              <span className="rounded-full bg-white/5 px-2.5 py-0.5 text-[10px] text-muted">
+                +{tags.length - 3}
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Pie: avatar + stats */}
         <div className="mt-5 flex items-center justify-between gap-3 border-t border-white/10 pt-4">
+
           {/* Avatar con borde gradiente */}
           <div className="flex min-w-0 items-center gap-2">
             <span className="rounded-full bg-gradient-to-br from-primary via-accent to-secondary p-[2px]">
@@ -109,14 +131,32 @@ export default function PromptCard({
           <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/15 px-3 py-1 text-xs font-bold text-secondary">
             ✦ Gratis
           </span>
-          {/* Botón de apoyo (por encima del enlace para poder pulsarlo) */}
-          <SupportPromptButton
-            promptId={prompt.id}
-            initialCredits={prompt.totalCredits}
-            className="relative z-[3]"
-          />
+          <div className="flex items-center gap-1">
+            {/* Reportar: por encima del enlace de la tarjeta, como el apoyo */}
+            <ReportPromptButton
+              promptId={prompt.id}
+              className="relative z-[3] rounded-full px-2.5 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-red-400"
+            />
+            {/* Botón de apoyo (por encima del enlace para poder pulsarlo) */}
+            <SupportPromptButton
+              promptId={prompt.id}
+              initialCredits={prompt.totalCredits}
+              className="relative z-[3]"
+            />
+          </div>
         </div>
       </div>
     </div>
   );
+}
+
+// Parsea el JSON string de Prompt.tags de forma segura (nunca lanza).
+function safeParseTags(raw?: string): string[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.map(String).filter(Boolean) : [];
+  } catch {
+    return [];
+  }
 }

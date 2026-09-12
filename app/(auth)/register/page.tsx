@@ -41,11 +41,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10 sm:px-6">
       <div className="pointer-events-none absolute -top-20 left-1/4 h-[300px] w-[300px] rounded-full bg-accent/20 blur-[110px]" />
       <div className="pointer-events-none absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-primary/20 blur-[110px]" />
 
-      <div className="glass relative w-full max-w-md p-8">
+      <div className="glass relative w-full max-w-md p-6 sm:p-8">
         <h1 className="text-center text-3xl font-extrabold">
           <span className="gradient-text">Crear Cuenta</span>
         </h1>

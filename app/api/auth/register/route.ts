@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { SIGNUP_CREDITS, SIGNUP_RAYS } from "@/lib/credits";
 
 const registerSchema = z.object({
   name: z.string().min(1, "El nombre es obligatorio").max(80),
@@ -38,6 +39,9 @@ export async function POST(req: Request) {
         name,
         email,
         password: hashedPassword,
+        credits: SIGNUP_CREDITS,
+        rays: SIGNUP_RAYS,
+        raysUpdatedAt: new Date(),
       },
       select: { id: true, name: true, email: true },
     });

@@ -33,6 +33,7 @@ export interface PromptCardData {
   isPaid: boolean;
   isFeatured: boolean;
   isSponsored?: boolean;
+  tags?: string; // JSON string de tags (Prompt.tags)
   views: number;
   savesCount: number;
   totalCredits: number;
@@ -44,10 +45,19 @@ export interface PromptCardData {
   };
 }
 
-// Movimiento contable para mostrar historial en el perfil
+// Movimiento contable para mostrar historial en el perfil.
+// EARN/SPEND/PREMIUM son créditos IA; RAY_EARN/RAY_SPEND son rayitos.
+export type TransactionType =
+  | "EARN"
+  | "SPEND"
+  | "DONATE"
+  | "PREMIUM"
+  | "RAY_EARN"
+  | "RAY_SPEND";
+
 export interface CreditTransaction {
   id: string;
-  type: "EARN" | "SPEND" | "DONATE" | "PREMIUM";
+  type: TransactionType;
   amount: number;
   description: string;
   createdAt: Date | string;
@@ -56,7 +66,7 @@ export interface CreditTransaction {
 // Resultado que devuelve el endpoint de apoyo
 export interface SupportResult {
   ok: boolean;
-  credits?: number;
+  rays?: number;
   totalCredits?: number;
   message?: string;
   error?: string;

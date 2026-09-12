@@ -11,8 +11,8 @@ export default function NewPromptPage() {
     <div className="relative min-h-screen">
       <div className="pointer-events-none absolute -top-20 right-0 h-[300px] w-[300px] rounded-full bg-yellow-brand/15 blur-[110px]" />
 
-      <div className="relative mx-auto max-w-3xl px-6 py-12">
-        <h1 className="text-center text-4xl font-extrabold">
+      <div className="relative mx-auto w-full max-w-3xl px-4 py-12 sm:px-6">
+        <h1 className="text-center text-3xl font-extrabold sm:text-4xl">
           <span className="gradient-text">Subir un Prompt</span>
         </h1>
         <p className="mt-3 text-center text-muted">

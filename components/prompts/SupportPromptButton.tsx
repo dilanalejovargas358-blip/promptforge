@@ -9,8 +9,8 @@ interface SupportPromptButtonProps {
 }
 
 /**
- * Botón "Apoyar con crédito". Cuesta 1 crédito del usuario y suma 1 al total
- * del prompt (y al saldo del creador). Gestiona login/sin créditos/auto-apoyo.
+ * Botón "Apoyar". Cuesta 1 rayito del usuario y suma 1 al total del prompt
+ * (que es lo que alimenta el ranking). Gestiona login/sin rayitos/auto-apoyo.
  */
 export default function SupportPromptButton({
   promptId,
@@ -47,7 +47,7 @@ export default function SupportPromptButton({
         type="button"
         onClick={support}
         disabled={busy}
-        aria-label="Apoyar este prompt con 1 crédito"
+        aria-label="Apoyar este prompt con 1 rayito"
         className="btn-secondary !px-3 !py-1.5 text-xs disabled:opacity-60"
       >
         {busy ? "…" : `⚡ Apoyar · ${total}`}

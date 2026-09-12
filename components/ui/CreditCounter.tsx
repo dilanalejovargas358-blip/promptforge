@@ -4,14 +4,14 @@ import { useCallback, useEffect, useState } from "react";
 
 interface CreditCounterProps {
   initialCredits?: number | null;
-  /** Cambia este valor (p. ej. tras ver un anuncio) para volver a leer el saldo. */
+  /** Cambia este valor para forzar una nueva lectura del saldo. */
   refreshKey?: number;
   className?: string;
 }
 
 /**
  * Contador de créditos del usuario autenticado. Se auto-refresca desde /api/credits
- * cada vez que cambia `refreshKey` (por ejemplo al completar un anuncio).
+ * cada vez que cambia `refreshKey`.
  */
 export default function CreditCounter({
   initialCredits = null,

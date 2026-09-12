@@ -1,20 +1,63 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
+// Traduce los códigos de error de NextAuth (vienen como ?error=... en la URL)
+// a mensajes amigables. Devuelve null cuando no hay que mostrar nada.
+function getAuthErrorMessage(code: string | null): string | null {
+  switch (code) {
+    case "OAuthAccountNotLinked":
+      return "Ya existe una cuenta con este email usando otro método. Inicia sesión con ese método.";
+    case "AccessDenied":
+      return "Acceso denegado. No tienes permiso para iniciar sesión.";
+    case "Configuration":
+      return "Hay un problema de configuración en el servidor. Contacta al administrador.";
+    case "OAuthSignin":
+    case "OAuthCallback":
+    case "OAuthCreateAccount":
+    case "EmailCreateAccount":
+    case "Callback":
+      return "Hubo un problema al iniciar sesión con Google. Inténtalo de nuevo.";
+    case "CredentialsSignin":
+      return "Credenciales inválidas. Revisa tu email y contraseña.";
+    case "Verification":
+      return "El enlace de verificación ha expirado o ya fue usado.";
+    default:
+      return null;
+  }
+}
+
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+
+  // Error de OAuth que NextAuth deja en la URL (p. ej. tras volver de Google).
+  const oauthError = getAuthErrorMessage(searchParams.get("error"));
+
+  const handleGoogleSignIn = async () => {
+    setError("");
+    setIsGoogleLoading(true);
+    // Con redirect por defecto, si falla Google volvemos aquí con ?error=...
+    await signIn("google", { callbackUrl: "/profile" });
+    // Si por alguna razón el flujo vuelve sin redirigir, quitamos el spinner.
+    setIsGoogleLoading(false);
+  };
 
   async function handleCredentials(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+
+    if (isGoogleLoading) return;
     setLoading(true);
 
     const res = await signIn("credentials", {
@@ -33,11 +76,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 py-16">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10 sm:px-6">
       <div className="pointer-events-none absolute -top-20 left-1/4 h-[300px] w-[300px] rounded-full bg-secondary/20 blur-[110px]" />
       <div className="pointer-events-none absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-accent/20 blur-[110px]" />
 
-      <div className="glass relative w-full max-w-md p-8">
+      <div className="glass relative w-full max-w-md p-6 sm:p-8">
         <h1 className="text-center text-3xl font-extrabold">
           <span className="gradient-text">Iniciar Sesión</span>
         </h1>
@@ -45,31 +88,43 @@ export default function LoginPage() {
           Accede a PromptForge con tu cuenta.
         </p>
 
+        {/* Error de OAuth (¿error=... en la URL) */}
+        {oauthError && (
+          <div className="mt-6 rounded-xl border border-red-400/40 bg-red-400/10 px-4 py-3 text-sm text-red-400">
+            {oauthError}
+          </div>
+        )}
+
         {/* Login con Google */}
         <button
           type="button"
-          onClick={() => signIn("google", { callbackUrl: "/profile" })}
-          className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 font-medium text-white transition-colors hover:bg-white/10"
+          onClick={handleGoogleSignIn}
+          disabled={isGoogleLoading || loading}
+          className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 font-medium text-white shadow-lg shadow-black/10 transition-all duration-200 hover:-translate-y-px hover:border-white/30 hover:bg-white/10 hover:shadow-glow disabled:cursor-not-allowed disabled:opacity-50"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
-            <path
-              fill="#4285F4"
-              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z"
-            />
-            <path
-              fill="#34A853"
-              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"
-            />
-            <path
-              fill="#FBBC05"
-              d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z"
-            />
-            <path
-              fill="#EA4335"
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38Z"
-            />
-          </svg>
-          Continuar con Google
+          {isGoogleLoading ? (
+            <span className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden>
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38Z"
+              />
+            </svg>
+          )}
+          {isGoogleLoading ? "Conectando con Google..." : "Continuar con Google"}
         </button>
 
         <div className="my-6 flex items-center gap-3 text-xs text-muted">
@@ -108,15 +163,15 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary">
+            <div className="rounded-xl border border-red-400/40 bg-red-400/10 px-4 py-3 text-sm text-red-400">
               {error}
-            </p>
+            </div>
           )}
 
           <button
             type="submit"
-            disabled={loading}
-            className="btn-primary w-full disabled:opacity-60"
+            disabled={loading || isGoogleLoading}
+            className="btn-primary w-full disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? "Entrando..." : "Iniciar Sesión"}
           </button>
@@ -130,5 +185,14 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  // useSearchParams debe ir dentro de un Suspense para no romper el build estático.
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <LoginContent />
+    </Suspense>
   );
 }

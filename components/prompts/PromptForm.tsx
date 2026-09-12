@@ -23,6 +23,8 @@ const MODELS = [
   "Otro",
 ];
 
+const MAX_TAGS = 5;
+
 function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -34,15 +36,32 @@ function slugify(text: string): string {
     .slice(0, 100);
 }
 
+const inputCls =
+  "w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-secondary focus:outline-none";
+const selectCls =
+  "w-full rounded-xl border border-white/15 bg-[#1A1A2E] px-4 py-3 text-white focus:border-secondary focus:outline-none";
+
 export default function PromptForm() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState(CATEGORIES[0]);
+  const [customCategory, setCustomCategory] = useState("");
   const [model, setModel] = useState(MODELS[0]);
+  const [customModel, setCustomModel] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  function addTag(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key !== "Enter") return;
+    e.preventDefault();
+    const value = e.currentTarget.value.trim();
+    if (!value || tags.includes(value) || tags.length >= MAX_TAGS) return;
+    setTags((prev) => [...prev, value]);
+    e.currentTarget.value = "";
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,6 +69,19 @@ export default function PromptForm() {
 
     if (!content.trim()) {
       setError("El contenido del prompt es obligatorio.");
+      return;
+    }
+
+    const finalCategory =
+      category === "Otro" ? customCategory.trim() : category;
+    const finalModel = model === "Otro" ? customModel.trim() : model;
+
+    if (category === "Otro" && !finalCategory) {
+      setError("Escribe el nombre de tu categoría personalizada.");
+      return;
+    }
+    if (model === "Otro" && !finalModel) {
+      setError("Escribe el nombre de tu modelo / IA personalizado.");
       return;
     }
 
@@ -63,8 +95,9 @@ export default function PromptForm() {
           title,
           description,
           content,
-          category,
-          model,
+          category: finalCategory,
+          model: finalModel,
+          tags: JSON.stringify(tags),
           slug: slugify(title),
         }),
       });
@@ -86,7 +119,7 @@ export default function PromptForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="glass mt-8 space-y-5 p-6 md:p-8">
+    <form onSubmit={handleSubmit} className="glass mt-8 space-y-5 p-5 sm:p-6 md:p-8">
       <div>
         <label className="mb-1 block text-sm font-medium text-muted">
           Título *
@@ -96,20 +129,30 @@ export default function PromptForm() {
           onChange={(e) => setTitle(e.target.value)}
           required
           placeholder="Ej: Generador de historias de ciencia ficción"
-          className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-secondary focus:outline-none"
+          className={inputCls}
         />
       </div>
 
       <div>
-        <label className="mb-1 block text-sm font-medium text-muted">
-          Descripción breve
-        </label>
+        <div className="mb-1 flex items-center justify-between">
+          <label className="block text-sm font-medium text-muted">
+            Descripción breve
+          </label>
+          <span
+            className={`text-xs ${
+              description.length > 500 ? "text-red-400" : "text-muted"
+            }`}
+          >
+            {description.length}/500
+          </span>
+        </div>
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
+          maxLength={500}
           placeholder="¿Qué hace este prompt y para quién?"
-          className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-secondary focus:outline-none"
+          className={inputCls}
         />
       </div>
 
@@ -123,11 +166,12 @@ export default function PromptForm() {
           required
           rows={6}
           placeholder="Escribe aquí el prompt completo que compartirás o venderás..."
-          className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-secondary focus:outline-none"
+          className={inputCls}
         />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
+        {/* Categoría */}
         <div>
           <label className="mb-1 block text-sm font-medium text-muted">
             Categoría
@@ -135,7 +179,7 @@ export default function PromptForm() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full rounded-xl border border-white/15 bg-[#1A1A2E] px-4 py-3 text-white focus:border-secondary focus:outline-none"
+            className={selectCls}
           >
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
@@ -143,7 +187,17 @@ export default function PromptForm() {
               </option>
             ))}
           </select>
+          {category === "Otro" && (
+            <input
+              value={customCategory}
+              onChange={(e) => setCustomCategory(e.target.value)}
+              placeholder="Escribe tu categoría..."
+              className={`${inputCls} mt-2`}
+            />
+          )}
         </div>
+
+        {/* Modelo / IA */}
         <div>
           <label className="mb-1 block text-sm font-medium text-muted">
             Modelo / IA
@@ -151,7 +205,7 @@ export default function PromptForm() {
           <select
             value={model}
             onChange={(e) => setModel(e.target.value)}
-            className="w-full rounded-xl border border-white/15 bg-[#1A1A2E] px-4 py-3 text-white focus:border-secondary focus:outline-none"
+            className={selectCls}
           >
             {MODELS.map((m) => (
               <option key={m} value={m}>
@@ -159,7 +213,50 @@ export default function PromptForm() {
               </option>
             ))}
           </select>
+          {model === "Otro" && (
+            <input
+              value={customModel}
+              onChange={(e) => setCustomModel(e.target.value)}
+              placeholder="Escribe tu modelo / IA..."
+              className={`${inputCls} mt-2`}
+            />
+          )}
         </div>
+      </div>
+
+      {/* Tags */}
+      <div>
+        <label className="mb-1 block text-sm font-medium text-muted">
+          Tags (opcional)
+        </label>
+        <div className="mb-2 flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="flex items-center gap-1 rounded-full bg-white/10 px-3 py-1 text-xs text-white"
+            >
+              #{tag}
+              <button
+                type="button"
+                onClick={() => setTags(tags.filter((t) => t !== tag))}
+                className="text-muted hover:text-white"
+                aria-label={`Eliminar tag ${tag}`}
+              >
+                ✕
+              </button>
+            </span>
+          ))}
+        </div>
+        <input
+          type="text"
+          placeholder="Escribe un tag y presiona Enter"
+          onKeyDown={addTag}
+          disabled={tags.length >= MAX_TAGS}
+          className={`${inputCls} disabled:opacity-60`}
+        />
+        <p className="mt-1 text-xs text-muted">
+          Máximo {MAX_TAGS} tags. Presiona Enter para agregar.
+        </p>
       </div>
 
       <p className="text-sm text-muted">

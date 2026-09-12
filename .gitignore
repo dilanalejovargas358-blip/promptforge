@@ -36,3 +36,6 @@ next-env.d.ts
 # prisma / sqlite
 *.db
 *.db-journal
+
+# repomix (artefacto generado, se regenera con cada volcado del repo)
+repomix-output.md

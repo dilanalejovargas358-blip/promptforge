@@ -214,7 +214,6 @@ async function main() {
 
   // Limpia datos existentes (en orden por las claves foráneas, incluye tablas nuevas)
   await prisma.transaction.deleteMany();
-  await prisma.adView.deleteMany();
   await prisma.report.deleteMany();
   await prisma.savedPrompt.deleteMany();
   await prisma.prompt.deleteMany();
@@ -236,7 +235,9 @@ async function main() {
       email: "admin@promptforge.com",
       password: adminPw,
       role: "ADMIN",
-      credits: 300,
+      credits: 25,
+      rays: 5,
+      raysUpdatedAt: new Date(),
       bio: "Administrador de la plataforma.",
     },
   });
@@ -248,11 +249,12 @@ async function main() {
       email: "creadora@promptforge.com",
       password: creatorPw,
       role: "USER",
-      credits: 150,
+      credits: 25, // Premium: 25 créditos IA al mes
+      rays: 3,
+      raysUpdatedAt: new Date(),
       bio: "Diseñadora de prompts para imagen y texto.",
       isPremium: true,
       premiumUntil: addDays(60),
-      // premiumDailyAt queda null para que el primer GET demuestre el +5/día.
     },
   });
 
@@ -264,7 +266,9 @@ async function main() {
       email: "luna@promptforge.com",
       password: lunaPw,
       role: "USER",
-      credits: 80,
+      credits: 5,
+      rays: 1,
+      raysUpdatedAt: new Date(),
       bio: "Arte generativo e ilustración.",
     },
   });
@@ -276,7 +280,9 @@ async function main() {
       email: "dev@promptforge.com",
       password: devPw,
       role: "USER",
-      credits: 80,
+      credits: 5,
+      rays: 1,
+      raysUpdatedAt: new Date(),
       bio: "Prompts técnicos y de productividad.",
     },
   });
@@ -289,12 +295,15 @@ async function main() {
       email: "ana@promptforge.com",
       password: anaPw,
       role: "USER",
-      credits: 12, // Con saldo para probar "Apoyar"
+      credits: 5,
+      rays: 5, // Al tope, para probar "Apoyar" varias veces
+      raysUpdatedAt: new Date(),
       bio: "Me encanta apoyar a los creadores.",
     },
   });
 
-  // Usuario sin saldo: ideal para probar "Ver anuncio" para ganar créditos.
+  // Usuario sin saldo: ideal para probar los avisos de "sin créditos IA" y
+  // "sin rayitos". raysUpdatedAt = hace 30 min → el siguiente rayito llega pronto.
   const free = await prisma.user.create({
     data: {
       name: "Usuario Gratis",
@@ -302,7 +311,9 @@ async function main() {
       password: userPw,
       role: "USER",
       credits: 0,
-      bio: "Gano créditos viendo anuncios.",
+      rays: 0,
+      raysUpdatedAt: new Date(Date.now() - 30 * 60 * 1000),
+      bio: "Explorando PromptForge y apoyando a los creadores.",
     },
   });
 
@@ -313,11 +324,12 @@ async function main() {
       email: "maria@promptforge.com",
       password: mariaPw,
       role: "USER",
-      credits: 200,
+      credits: 25, // Premium: 25 créditos IA al mes
+      rays: 5,
+      raysUpdatedAt: new Date(),
       isPremium: true,
       premiumUntil: addDays(30),
-      premiumDailyAt: new Date(), // Hoy ya recibió el +5 diario
-      bio: "Premium: sin anuncios y apoyo ilimitado.",
+      bio: "Premium: 25 créditos IA cada mes.",
     },
   });
 
@@ -358,14 +370,14 @@ async function main() {
       {
         userId: maria.id,
         type: "PREMIUM",
-        amount: 500,
-        description: "Suscripción Premium (1 mes)",
+        amount: 25,
+        description: "Suscripción Premium — 25 créditos IA",
       },
       {
         userId: maria.id,
-        type: "EARN",
-        amount: 5,
-        description: "Crédito diario Premium (+5)",
+        type: "SPEND",
+        amount: -1,
+        description: "Optimización de prompt con IA",
       },
     ],
   });
@@ -375,34 +387,39 @@ async function main() {
     data: [
       {
         userId: studio.id,
-        type: "EARN",
+        type: "RAY_EARN",
         amount: 1,
-        description: 'Recibiste apoyo en "Logo Futurista para Midjourney" (+1 crédito)',
+        description: 'Recibiste apoyo en "Logo Futurista para Midjourney"',
       },
       {
         userId: studio.id,
-        type: "EARN",
+        type: "RAY_EARN",
         amount: 1,
-        description: 'Recibiste apoyo en "Escritor de Novela de Ciencia Ficción" (+1 crédito)',
+        description: 'Recibiste apoyo en "Escritor de Novela de Ciencia Ficción"',
       },
     ],
   });
 
-  // Usuario gratis: ya vio un anuncio hoy (su saldo está a 0 porque lo gastó
-  // apoyando; esto sirve para mostrar cooldown/feed de EARN).
-  await prisma.adView.create({
-    data: { userId: free.id, adType: "GOOGLE", creditsEarned: 1 },
-  });
-  await prisma.transaction.create({
-    data: {
-      userId: free.id,
-      type: "EARN",
-      amount: 1,
-      description: "Anuncio visto (+1 crédito)",
-    },
+  // Usuario gratis: gastó su rayito inicial apoyando, por eso está a 0.
+  // Sirve para mostrar el feed de movimientos y el aviso de "sin rayitos".
+  await prisma.transaction.createMany({
+    data: [
+      {
+        userId: free.id,
+        type: "RAY_EARN",
+        amount: 1,
+        description: "Rayitos de bienvenida (+1)",
+      },
+      {
+        userId: free.id,
+        type: "RAY_SPEND",
+        amount: -1,
+        description: 'Apoyaste "Copywriter para Landing Pages"',
+      },
+    ],
   });
 
-  console.log("🧾 Transacciones y anuncios de ejemplo creados.");
+  console.log("🧾 Transacciones de ejemplo creadas.");
 
   // ---- Resumen de acceso ---------------------------------------------------
   console.log("\n🎉 Seed completado. Datos de acceso demo:");
@@ -410,9 +427,9 @@ async function main() {
   console.log("  Creadora : creadora@promptforge.com / creator123  (⭐ Premium, 1º ranking)");
   console.log("  Luna     : luna@promptforge.com   / luna123");
   console.log("  Dev      : dev@promptforge.com    / dev123");
-  console.log("  Ana      : ana@promptforge.com    / ana123    (12 créditos → probar Apoyar)");
-  console.log("  Gratis   : usuario@promptforge.com / usuario123 (0 créditos → probar Ver anuncio)");
-  console.log("  Premium  : maria@promptforge.com  / maria123  (⭐ Premium → probar sin anuncios)");
+  console.log("  Ana      : ana@promptforge.com    / ana123    (5 rayitos → probar Apoyar)");
+  console.log("  Gratis   : usuario@promptforge.com / usuario123 (0 créditos y 0 rayitos → probar avisos)");
+  console.log("  Premium  : maria@promptforge.com  / maria123  (⭐ Premium → 25 créditos IA/mes)");
 }
 
 main()

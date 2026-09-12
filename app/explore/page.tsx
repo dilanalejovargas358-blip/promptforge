@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export const revalidate = 30;
 
 interface PageProps {
-  searchParams: { q?: string; category?: string };
+  searchParams: { q?: string; category?: string; authorId?: string };
 }
 
 const FEATURED_CATEGORIES = [
@@ -29,10 +29,23 @@ const FEATURED_CATEGORIES = [
 export default async function ExplorePage({ searchParams }: PageProps) {
   const query = searchParams.q?.trim() ?? "";
   const category = searchParams.category?.trim() ?? "";
+  const authorId = searchParams.authorId?.trim() ?? "";
+
+  // Nombre del creador para mostrar el contexto del filtro.
+  const authorName = authorId
+    ? (
+        await prisma.user.findUnique({
+          where: { id: authorId },
+          select: { name: true },
+        })
+      )?.name ?? null
+    : null;
 
   const prompts = await prisma.prompt.findMany({
     where: {
       status: "PUBLISHED",
+      // Fuera los retirados y los que están en revisión por moderación.
+      moderationStatus: "OK",
       ...(query
         ? {
             OR: [
@@ -43,6 +56,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
           }
         : {}),
       ...(category ? { category } : {}),
+      ...(authorId ? { authorId } : {}),
     },
     orderBy: { createdAt: "desc" },
     include: {
@@ -66,6 +80,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     savesCount: p.savesCount,
     totalCredits: p.totalCredits,
     isSponsored: p.isSponsored,
+    tags: p.tags,
     createdAt: p.createdAt,
     author: {
       id: p.author.id,
@@ -82,7 +97,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
       <div className="relative mx-auto max-w-6xl px-4 py-12 md:px-6">
         {/* Encabezado */}
         <div className="fade-up text-center">
-          <h1 className="text-4xl font-extrabold md:text-6xl">
+          <h1 className="text-3xl font-extrabold sm:text-4xl md:text-6xl">
             <span className="gradient-text">Explorar Prompts</span>
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-muted">
@@ -95,14 +110,14 @@ export default async function ExplorePage({ searchParams }: PageProps) {
         <div className="fade-up mt-12" style={{ animationDelay: "100ms" }}>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             <Link
-              href="/explore"
-              className={`group flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-300 hover:-translate-y-1.5 hover:shadow-glow ${
+              href={authorId ? `/explore?authorId=${encodeURIComponent(authorId)}` : "/explore"}
+              className={`group flex flex-col items-center gap-3 rounded-2xl border p-4 text-center sm:p-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-glow ${
                 !category
                   ? "glass gradient-border border-transparent"
                   : "glass opacity-80 hover:opacity-100"
               }`}
             >
-              <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/10 text-2xl text-white">
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-xl text-white sm:h-12 sm:w-12 sm:text-2xl">
                 ✨
               </span>
               <span className="text-sm font-semibold">Todos</span>
@@ -111,18 +126,22 @@ export default async function ExplorePage({ searchParams }: PageProps) {
             {FEATURED_CATEGORIES.map((cat) => {
               const meta = CATEGORY_MAP[cat];
               const active = category === cat;
+              const base = authorId
+                ? `/explore?authorId=${encodeURIComponent(authorId)}`
+                : "/explore";
+              const sep = base.includes("?") ? "&" : "?";
               return (
                 <Link
                   key={cat}
-                  href={`/explore?category=${encodeURIComponent(cat)}`}
-                  className={`group flex flex-col items-center gap-3 rounded-2xl border p-5 text-center transition-all duration-300 hover:-translate-y-1.5 hover:shadow-glow ${
+                  href={`${base}${sep}category=${encodeURIComponent(cat)}`}
+                  className={`group flex flex-col items-center gap-3 rounded-2xl border p-4 text-center sm:p-5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-glow ${
                     active
                       ? `${meta.bg} border-transparent ${meta.ring}`
                       : "glass hover:border-white/20"
                   }`}
                 >
                   <span
-                    className={`flex h-12 w-12 items-center justify-center rounded-xl text-2xl ${meta.bg} ${meta.color} transition-transform duration-300 group-hover:scale-125`}
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl text-xl sm:h-12 sm:w-12 sm:text-2xl ${meta.bg} ${meta.color} transition-transform duration-300 group-hover:scale-125`}
                   >
                     {meta.icon}
                   </span>
@@ -136,16 +155,33 @@ export default async function ExplorePage({ searchParams }: PageProps) {
         {/* Resultados */}
         <div className="mt-10 flex flex-wrap items-center justify-between gap-3">
           <h2 className="text-lg font-bold text-muted">
-            {query ? `Resultados para “${query}”` : "Lo más reciente"}
+            {query
+              ? `Resultados para “${query}”`
+              : authorName
+              ? `Prompts de ${authorName}`
+              : "Lo más reciente"}
             <span className="ml-2 rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-bold text-white">
               {mapped.length}
             </span>
           </h2>
-          {query && (
-            <Link href="/explore" className="text-sm font-semibold text-secondary hover:underline">
-              Limpiar búsqueda ✕
-            </Link>
-          )}
+          <div className="flex flex-wrap items-center gap-3">
+            {query && (
+              <Link
+                href={authorId ? `/explore?authorId=${encodeURIComponent(authorId)}` : "/explore"}
+                className="text-sm font-semibold text-secondary hover:underline"
+              >
+                Limpiar búsqueda ✕
+              </Link>
+            )}
+            {authorName && (
+              <Link
+                href="/explore"
+                className="text-sm font-semibold text-secondary hover:underline"
+              >
+                Ver todos ✕
+              </Link>
+            )}
+          </div>
         </div>
 
         {mapped.length === 0 ? (

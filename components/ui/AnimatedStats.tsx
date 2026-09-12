@@ -79,11 +79,13 @@ export default function AnimatedStats({
           className="fade-up text-center"
           style={{ animationDelay: `${i * 120 + 150}ms` }}
         >
-          <div className={`text-2xl md:text-3xl ${s.tint}`}>{s.icon}</div>
-          <div className="mt-2 text-3xl font-extrabold gradient-text md:text-4xl">
+          <div className={`flex justify-center ${s.tint}`}>
+            <span className="text-2xl md:text-3xl">{s.icon}</span>
+          </div>
+          <div className="mt-3 w-full text-5xl font-extrabold tracking-tight gradient-text md:text-6xl">
             <CountUp end={s.end} suffix={s.suffix} prefix={s.prefix} />
           </div>
-          <div className="mt-1 text-sm text-muted">{s.label}</div>
+          <div className="mt-2 text-sm text-muted">{s.label}</div>
         </div>
       ))}
     </div>

@@ -1,34 +1,71 @@
 import { GlowButtonLink } from "@/components/ui/GlowButton";
 import AnimatedStats from "@/components/ui/AnimatedStats";
+import { prisma } from "@/lib/prisma";
 import { Eye, FileText, Users } from "lucide-react";
 
-// Estadísticas del hero. Valores ilustrativos; tercer dato = categorías
-// (sustituye a la antigua cifra "$25K pagados", que no era realista).
-const STATS = [
-  {
-    icon: <Eye className="h-7 w-7" strokeWidth={1.75} />,
-    end: 100,
-    suffix: "+",
-    label: "Prompts curados",
-    tint: "text-primary",
-  },
-  {
-    icon: <Users className="h-7 w-7" strokeWidth={1.75} />,
-    end: 50,
-    suffix: "+",
-    label: "Creadores activos",
-    tint: "text-accent",
-  },
-  {
-    icon: <FileText className="h-7 w-7" strokeWidth={1.75} />,
-    end: 25,
-    suffix: "+",
-    label: "Categorías",
-    tint: "text-secondary",
-  },
+// Por debajo de esta cifra de prompts publicados, los números reales darían
+// pena (un "3" gigante) y es mejor contar lo que ofrece la plataforma.
+const MIN_PROMPTS_FOR_STATS = 20;
+
+// Mensajes para cuando aún no hay datos suficientes. Mismo esquema visual que
+// los stats (icono / titular / pie) para que el bloque no cambie de alto.
+const EARLY_ACCESS = [
+  { icon: "🚀", title: "Beta abierta", text: "Sé de los primeros creadores" },
+  { icon: "🎁", title: "Sin comisiones", text: "Sube tus prompts gratis" },
+  { icon: "⚡", title: "Apoyos", text: "Gana visibilidad en el ranking" },
 ];
 
-export default function Hero() {
+/** Cifras reales de la plataforma. Devuelve null si la BD no responde. */
+async function getStats() {
+  const where = { status: "PUBLISHED" };
+  try {
+    // En serie, no con Promise.all: DATABASE_URL usa connection_limit=1, así que
+    // tres consultas lanzadas a la vez solo hacen cola en el pool (y en el build
+    // llegó a agotar el timeout de 10 s → P2024). Sin paralelismo no se pierde nada.
+    const promptCount = await prisma.prompt.count({ where });
+    const creators = await prisma.prompt.groupBy({ by: ["authorId"], where });
+    const categories = await prisma.prompt.groupBy({ by: ["category"], where });
+    return {
+      promptCount,
+      creatorCount: creators.length,
+      categoryCount: categories.length,
+    };
+  } catch (error) {
+    // Un fallo de BD no debe tumbar la portada: se cae al mensaje de beta.
+    console.error("Hero: no se pudieron leer las estadísticas", error);
+    return null;
+  }
+}
+
+export default async function Hero() {
+  const stats = await getStats();
+  const showRealStats =
+    stats !== null && stats.promptCount >= MIN_PROMPTS_FOR_STATS;
+
+  // Sin sufijo "+": son cifras exactas, no estimaciones.
+  const STATS = stats
+    ? [
+        {
+          icon: <Eye className="h-7 w-7" strokeWidth={1.75} />,
+          end: stats.promptCount,
+          label: "Prompts publicados",
+          tint: "text-primary",
+        },
+        {
+          icon: <Users className="h-7 w-7" strokeWidth={1.75} />,
+          end: stats.creatorCount,
+          label: "Creadores activos",
+          tint: "text-accent",
+        },
+        {
+          icon: <FileText className="h-7 w-7" strokeWidth={1.75} />,
+          end: stats.categoryCount,
+          label: "Categorías",
+          tint: "text-secondary",
+        },
+      ]
+    : [];
+
   return (
     <section className="hero-bg relative min-h-[calc(100vh-0rem)] overflow-hidden">
       {/* Rejilla sutil */}
@@ -39,7 +76,7 @@ export default function Hero() {
       <div className="float-delayed pointer-events-none absolute right-[12%] top-40 hidden h-4 w-4 rounded-full bg-accent shadow-glow md:block" />
       <div className="float-slow pointer-events-none absolute bottom-32 left-[16%] hidden h-3 w-3 rounded-full bg-secondary shadow-glow-secondary md:block" />
 
-      <div className="relative mx-auto flex max-w-5xl flex-col items-center px-6 pb-16 pt-20 text-center md:pt-28">
+      <div className="relative mx-auto flex w-full max-w-5xl flex-col items-center px-4 pb-16 pt-16 text-center sm:px-6 md:pt-28">
         {/* Insignia */}
         <div className="fade-up glass flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-medium text-muted">
           <span className="relative flex h-2 w-2">
@@ -50,7 +87,7 @@ export default function Hero() {
         </div>
 
         {/* Título con glow animado */}
-        <h1 className="mt-8 text-6xl font-extrabold leading-[0.95] tracking-tight md:text-8xl">
+        <h1 className="mt-8 text-5xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl md:text-8xl">
           <span className="fade-up glow-pulse gradient-text" style={{ animationDelay: "80ms" }}>
             PromptForge
           </span>
@@ -82,13 +119,33 @@ export default function Hero() {
           </GlowButtonLink>
         </div>
 
-        {/* Estadísticas animadas dentro de una tarjeta flotante */}
-        <div className="fade-up mt-16 w-full" style={{ animationDelay: "320ms" }}>
-          <div className="glass-strong gradient-border mx-auto max-w-3xl px-8 py-8">
-            <AnimatedStats
-              stats={STATS}
-              className="grid grid-cols-1 gap-8 sm:grid-cols-3"
-            />
+        {/* Estadísticas dentro de una tarjeta flotante: cifras reales cuando
+            hay datos suficientes, mensaje cualitativo mientras no los haya.
+            El contenedor es el mismo en ambas ramas. */}
+        <div className="fade-up mt-14 w-full" style={{ animationDelay: "320ms" }}>
+          <div className="glass-strong gradient-border mx-auto max-w-3xl px-5 py-8 sm:px-8">
+            {showRealStats ? (
+              <AnimatedStats
+                stats={STATS}
+                className="grid grid-cols-1 gap-8 sm:grid-cols-3"
+              />
+            ) : (
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                {EARLY_ACCESS.map((b, i) => (
+                  <div
+                    key={b.title}
+                    className="fade-up text-center"
+                    style={{ animationDelay: `${i * 120 + 150}ms` }}
+                  >
+                    <div className="text-2xl md:text-3xl">{b.icon}</div>
+                    <div className="mt-3 text-xl font-extrabold tracking-tight gradient-text md:text-2xl">
+                      {b.title}
+                    </div>
+                    <div className="mt-2 text-sm text-muted">{b.text}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

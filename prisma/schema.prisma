@@ -1,19 +1,12 @@
-// Prisma schema para PromptForge Pro
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
-
-// Nota: SQLite no soporta enums de Prisma, por eso se usan String.
-// Valores: role => "USER" | "ADMIN"
-//          status => "DRAFT" | "PUBLISHED" | "ARCHIVED"
-//          reportStatus => "PENDING" | "REVIEWED" | "DISMISSED"
-//          transaction.type => "EARN" | "SPEND" | "DONATE" | "PREMIUM"
-//          adView.adType => "GOOGLE" | "SPONSOR"
 
 model User {
   id            String    @id @default(cuid())
@@ -23,22 +16,22 @@ model User {
   image         String?
   password      String?
   role          String    @default("USER")
-  credits       Int       @default(10) // Saldo de créditos (default 10)
+  credits       Int       @default(5)
+  rays          Int       @default(1)
+  raysUpdatedAt DateTime?
   bio           String?
   isPremium     Boolean   @default(false)
-  premiumUntil  DateTime? // Válido mientras premiumUntil > now
-  // Fecha del último crédito diario Premium otorgado (para "+5 créditos/día").
-  // Campo interno de soporte, no forma parte de la UI.
-  premiumDailyAt DateTime?
+  premiumUntil  DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  prompts      Prompt[]
-  savedPrompts SavedPrompt[]
-  reports      Report[]
-  reportsMade  Report[]      @relation("ReportAuthor")
-  transactions Transaction[]
-  adViews      AdView[]
+  prompts       Prompt[]
+  savedPrompts  SavedPrompt[]
+  optimizations SavedOptimization[]
+  reports       Report[]
+  reportsMade   Report[]            @relation("ReportAuthor")
+  transactions  Transaction[]
+  notifications Notification[]
 
   accounts Account[]
   sessions Session[]
@@ -81,24 +74,27 @@ model VerificationToken {
 }
 
 model Prompt {
-  id          String   @id @default(cuid())
-  title       String
-  slug        String   @unique
-  description String
-  content     String // El prompt en sí
-  category    String
-  model       String // ChatGPT, Midjourney, DALL-E, etc.
-  price       Float    @default(0)
-  isPaid      Boolean  @default(false)
-  isFeatured  Boolean  @default(false)
-  isSponsored Boolean  @default(false) // Prompt patrocinado / anuncio de creador
-  status      String   @default("DRAFT") // DRAFT | PUBLISHED | ARCHIVED
-  views       Int      @default(0)
-  savesCount  Int      @default(0)
-  totalCredits Int     @default(0) // Créditos totales recibidos como apoyo
-  tags        String   @default("[]")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id               String   @id @default(cuid())
+  title            String
+  slug             String   @unique
+  description      String
+  content          String
+  category         String
+  model            String
+  price            Float    @default(0)
+  isPaid           Boolean  @default(false)
+  isFeatured       Boolean  @default(false)
+  isSponsored      Boolean  @default(false)
+  status           String   @default("DRAFT")
+  views            Int      @default(0)
+  savesCount       Int      @default(0)
+  totalCredits     Int      @default(0)
+  tags             String   @default("[]")
+  // OK | UNDER_REVIEW | REMOVED — lo cambia el admin desde /admin/reports
+  moderationStatus String   @default("OK")
+  moderationNote   String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   authorId String
   author   User          @relation(fields: [authorId], references: [id], onDelete: Cascade)
@@ -106,11 +102,12 @@ model Prompt {
   reports  Report[]
 }
 
-// Registro contable de movimientos de créditos del usuario.
 model Transaction {
   id          String   @id @default(cuid())
-  type        String // EARN | SPEND | DONATE | PREMIUM
-  amount      Int // Positivo = entrada; (ver description para contexto de DONATE/SPEND)
+  // Valores usados: "EARN" | "SPEND" | "DONATE" | "PREMIUM" | "RAY_EARN" | "RAY_SPEND"
+  // (EARN/SPEND/PREMIUM son créditos IA; RAY_EARN/RAY_SPEND son rayitos.)
+  type        String
+  amount      Int
   description String
   createdAt   DateTime @default(now())
 
@@ -118,19 +115,6 @@ model Transaction {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
-}
-
-// Cada visualización completada de un anuncio que otorga crédito.
-model AdView {
-  id           String   @id @default(cuid())
-  adType       String   @default("GOOGLE") // GOOGLE | SPONSOR
-  creditsEarned Int     @default(1)
-  viewedAt     DateTime @default(now())
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId, viewedAt])
 }
 
 model SavedPrompt {
@@ -145,12 +129,31 @@ model SavedPrompt {
   @@unique([userId, promptId])
 }
 
+model SavedOptimization {
+  id              String   @id @default(cuid())
+  userId          String
+  originalPrompt  String
+  optimizedPrompt String
+  improvements    String   @default("[]")
+  scoreBefore     Int?
+  scoreAfter      Int?
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
 model Report {
-  id        String   @id @default(cuid())
-  reason    String
-  status    String   @default("PENDING") // PENDING | REVIEWED | DISMISSED
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String    @id @default(cuid())
+  reason     String
+  // PENDING | RESOLVED | DISMISSED
+  status     String    @default("PENDING")
+  resolution String?
+  resolvedBy String?
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   promptId   String
   prompt     Prompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
@@ -158,4 +161,21 @@ model Report {
   reporter   User   @relation("ReportAuthor", fields: [reporterId], references: [id], onDelete: Cascade)
   authorId   String
   author     User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id      String  @id @default(cuid())
+  userId  String
+  // "PROMPT_UNDER_REVIEW" | "PROMPT_REMOVED" | "REPORT_DISMISSED"
+  type    String
+  title   String
+  message String
+  link    String?
+  read    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read, createdAt])
 }

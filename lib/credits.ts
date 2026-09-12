@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -37,12 +38,19 @@ export function isPremiumActive(
   );
 }
 
-/** Devuelve el usuario de BD de la sesión actual, o null si no hay sesión. */
-export async function getDbUser(): Promise<User | null> {
+/**
+ * Devuelve el usuario de BD de la sesión actual, o null si no hay sesión.
+ *
+ * Memoizado con `cache()` de React: dentro de una misma petición todas las
+ * llamadas comparten el resultado, así que si un layout y una página (o varios
+ * componentes) lo piden, la consulta se paga una sola vez. Fuera de un render de
+ * React `cache()` no memoiza, pero tampoco estorba.
+ */
+export const getDbUser = cache(async (): Promise<User | null> => {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) return null;
   return prisma.user.findUnique({ where: { email: session.user.email } });
-}
+});
 
 /**
  * Registra un movimiento contable.

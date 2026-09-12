@@ -31,15 +31,14 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   const category = searchParams.category?.trim() ?? "";
   const authorId = searchParams.authorId?.trim() ?? "";
 
-  // Nombre del creador para mostrar el contexto del filtro.
-  const authorName = authorId
-    ? (
-        await prisma.user.findUnique({
-          where: { id: authorId },
-          select: { name: true },
-        })
-      )?.name ?? null
-    : null;
+  // Nombre del creador para mostrar el contexto del filtro. Se lanza sin await
+  // para que corra a la vez que la búsqueda de prompts de abajo.
+  const authorPromise = authorId
+    ? prisma.user.findUnique({
+        where: { id: authorId },
+        select: { name: true },
+      })
+    : Promise.resolve(null);
 
   const prompts = await prisma.prompt.findMany({
     where: {
@@ -66,6 +65,8 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     },
     take: 24,
   });
+
+  const authorName = (await authorPromise)?.name ?? null;
 
   const mapped: PromptCardData[] = prompts.map((p) => ({
     id: p.id,

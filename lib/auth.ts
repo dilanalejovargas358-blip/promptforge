@@ -6,6 +6,9 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { SIGNUP_CREDITS, SIGNUP_RAYS } from "@/lib/constants";
 
+// Cada cuánto se refrescan contra la BD el saldo y el rol que viajan en el token.
+const JWT_REFRESH_MS = 30_000;
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
@@ -67,19 +70,27 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = (user as { role?: string }).role;
       }
-      // Refresca saldo y rol desde la BD en cada petición para que el gating de
-      // la UI vea los valores reales y no los del momento del login. Es
-      // necesario para `role`: el provider de credenciales no lo devuelve en
-      // authorize(), así que sin esto un admin que entre con contraseña no
-      // tendría rol y no vería el enlace de /admin.
+      // El token lleva el saldo y el rol, y se refrescan contra la BD como mucho
+      // una vez cada JWT_REFRESH_MS. Antes se refrescaban en CADA petición, lo
+      // que costaba una consulta por request en toda la app.
+      //
+      // El coste de no refrescar siempre: `credits` decide si las páginas de IA
+      // muestran el botón habilitado, así que durante esa ventana un usuario sin
+      // saldo puede verlo activo y comerse un error del servidor (que sí vuelve
+      // a comprobar los créditos antes de gastarlos). El gating de admin no
+      // depende de esto: app/admin/layout.tsx consulta el rol en la BD.
       if (token.id) {
-        const dbUser = await prisma.user.findUnique({
-          where: { id: token.id as string },
-          select: { credits: true, rays: true, role: true },
-        });
-        token.credits = dbUser?.credits ?? 0;
-        token.rays = dbUser?.rays ?? 0;
-        token.role = dbUser?.role ?? token.role;
+        const last = typeof token.refreshedAt === "number" ? token.refreshedAt : 0;
+        if (Date.now() - last >= JWT_REFRESH_MS) {
+          const dbUser = await prisma.user.findUnique({
+            where: { id: token.id as string },
+            select: { credits: true, rays: true, role: true },
+          });
+          token.credits = dbUser?.credits ?? 0;
+          token.rays = dbUser?.rays ?? 0;
+          token.role = dbUser?.role ?? token.role;
+          token.refreshedAt = Date.now();
+        }
       }
       return token;
     },

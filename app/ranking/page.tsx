@@ -106,26 +106,28 @@ async function buildRows(period: Period): Promise<Row[]> {
     .slice(0, 20)
     .map(([id]) => id);
 
-  const authors = await prisma.user.findMany({
-    where: { id: { in: sortedIds } },
-    select: { id: true, name: true, image: true },
-  });
-  const authorMap = new Map(authors.map((a) => [a.id, a]));
-
-  const promptCounts = await prisma.prompt.groupBy({
-    by: ["authorId"],
-    where: {
-      authorId: { in: sortedIds },
-      status: "PUBLISHED",
-      moderationStatus: "OK",
-    },
-    _count: { _all: true },
-  });
-  const countMap = new Map(promptCounts.map((c) => [c.authorId, c._count._all]));
-
-  // Apoyos en el período inmediatamente anterior (para la tendencia ↑/↓).
+  // Las tres consultas dependen solo de sortedIds, no entre sí: en paralelo.
   const prevStart = new Date(start.getTime() - lengthMs!);
-  const prevMap = await supportsBetween(prevStart, start);
+  const [authors, promptCounts, prevMap] = await Promise.all([
+    prisma.user.findMany({
+      where: { id: { in: sortedIds } },
+      select: { id: true, name: true, image: true },
+    }),
+    prisma.prompt.groupBy({
+      by: ["authorId"],
+      where: {
+        authorId: { in: sortedIds },
+        status: "PUBLISHED",
+        moderationStatus: "OK",
+      },
+      _count: { _all: true },
+    }),
+    // Apoyos en el período inmediatamente anterior (para la tendencia ↑/↓).
+    supportsBetween(prevStart, start),
+  ]);
+
+  const authorMap = new Map(authors.map((a) => [a.id, a]));
+  const countMap = new Map(promptCounts.map((c) => [c.authorId, c._count._all]));
 
   const rows: Row[] = [];
   for (let i = 0; i < sortedIds.length; i++) {

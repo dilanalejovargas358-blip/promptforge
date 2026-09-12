@@ -16,7 +16,12 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function PremiumManualPage() {
-  const session = await getServerSession(authOptions);
+  // `getConfig` no depende de la sesión: lanzarlo a la vez ahorra un viaje de ida
+  // y vuelta completo.
+  const [session, config] = await Promise.all([
+    getServerSession(authOptions),
+    getConfig(),
+  ]);
   if (!session?.user?.email) redirect("/login");
 
   const user = await prisma.user.findUnique({
@@ -30,10 +35,6 @@ export default async function PremiumManualPage() {
     where: { userId: user.id, status: "PENDING" },
     select: { id: true },
   });
-
-  // Secuencial a propósito: el pool tiene connection_limit=1 y un Promise.all
-  // aquí provoca P2024 a los 10 s.
-  const config = await getConfig();
 
   return (
     <PremiumManualOptions

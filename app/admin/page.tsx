@@ -6,10 +6,12 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 
 export default async function AdminIndexPage() {
-  const premiumRequests = await prisma.premiumRequest.count({
-    where: { status: "PENDING" },
-  });
-  const reports = await prisma.report.count({ where: { status: "PENDING" } });
+  // En paralelo: son dos conteos independientes, y encadenarlos costaba un viaje
+  // de ida y vuelta entero de más.
+  const [premiumRequests, reports] = await Promise.all([
+    prisma.premiumRequest.count({ where: { status: "PENDING" } }),
+    prisma.report.count({ where: { status: "PENDING" } }),
+  ]);
 
   const queues = [
     {

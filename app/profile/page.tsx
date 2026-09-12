@@ -20,21 +20,24 @@ export default async function ProfilePage() {
     redirect("/login");
   }
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: {
-      prompts: {
-        orderBy: { createdAt: "desc" },
-        take: 20,
+  // En paralelo: el agregado solo necesita el id, que ya viene en el token, así
+  // que no tiene por qué esperar a que resuelva la búsqueda del usuario.
+  const [user, earned] = await Promise.all([
+    prisma.user.findUnique({
+      where: { email: session.user.email },
+      include: {
+        prompts: {
+          orderBy: { createdAt: "desc" },
+          take: 20,
+        },
       },
-    },
-  });
+    }),
+    authorEarnedCredits(session.user.id),
+  ]);
 
   if (!user) {
     redirect("/login");
   }
-
-  const earned = await authorEarnedCredits(user.id);
   const premiumActive = isPremiumActive(user);
   // Esta página lee el usuario directo de Prisma (sin pasar por
   // applyRaysRegen), así que el tope se aplica aquí para no mostrar saldos

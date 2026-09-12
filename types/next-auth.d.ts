@@ -22,5 +22,7 @@ declare module "next-auth/jwt" {
     role?: string;
     credits?: number;
     rays?: number;
+    /** Marca de tiempo (ms) del último refresco contra la BD. */
+    refreshedAt?: number;
   }
 }

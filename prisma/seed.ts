@@ -1,5 +1,53 @@
+// ⚠️ Este script BORRA usuarios, prompts, transacciones y reportes. Solo
+// ejecutar en desarrollo o cuando realmente quieras resetear. Para forzar en
+// remoto: SEED_ALLOW_REMOTE=yes (o `npm run db:seed:force`).
+import { readFileSync } from "node:fs";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+
+// tsx no carga .env por su cuenta (a diferencia de Next o del CLI de Prisma),
+// así que sin esto `npm run db:seed` arrancaría sin DATABASE_URL y el cliente
+// de Prisma fallaría al primer query.
+//
+// El BOM se quita a propósito: si el archivo lo lleva, la primera variable
+// queda definida como "\uFEFFDATABASE_URL" (el BOM va pegado delante del
+// nombre) y no la ve nadie. Mejor curarse en salud que depender de que el
+// archivo esté bien guardado.
+//
+// Las variables que YA existen en el entorno no se tocan, para poder pasar una
+// DATABASE_URL puntual por línea de comandos.
+function loadEnvFiles(files: string[]) {
+  const predefined = new Set(Object.keys(process.env));
+
+  // Los archivos van de menor a mayor prioridad: el último gana, como en Next.
+  for (const file of files) {
+    let content: string;
+    try {
+      content = readFileSync(file, "utf8");
+    } catch {
+      continue; // puede no existir
+    }
+
+    for (const line of content.replace(/^\uFEFF/, "").split(/\r?\n/)) {
+      const match = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=(.*)$/);
+      if (!match) continue;
+
+      const [, name, rawValue] = match;
+      if (predefined.has(name)) continue;
+
+      let value = rawValue.trim();
+      if (
+        (value.startsWith('"') && value.endsWith('"')) ||
+        (value.startsWith("'") && value.endsWith("'"))
+      ) {
+        value = value.slice(1, -1);
+      }
+      process.env[name] = value;
+    }
+  }
+}
+
+loadEnvFiles([".env", ".env.local"]);
 
 const prisma = new PrismaClient();
 
@@ -210,6 +258,25 @@ Tono: ${"{cercano/autoridad}"}`,
 // ---------------------------------------------------------------------------
 
 async function main() {
+  // Guarda de seguridad: este script BORRA datos, así que un DATABASE_URL
+  // apuntando a producción por descuido se lo lleva todo por delante. Si la DB
+  // no parece local, se aborta salvo confirmación explícita.
+  const dbUrl = process.env.DATABASE_URL ?? "";
+  const isLocal = dbUrl.includes("localhost") || dbUrl.includes("127.0.0.1");
+  const allowRemote =
+    process.env.SEED_ALLOW_REMOTE === "yes" || process.argv.includes("--force");
+
+  if (!isLocal && !allowRemote) {
+    const shown = dbUrl ? dbUrl.replace(/:[^:@]+@/, ":***@") : "(no definida)";
+    console.error(`🛑 DATABASE_URL no parece local: ${shown}`);
+    console.error("   Este seed BORRA usuarios, prompts, transacciones y reportes.");
+    console.error("   Para forzarlo en una DB remota:");
+    console.error(
+      "     SEED_ALLOW_REMOTE=yes npm run db:seed   (o: npm run db:seed:force)"
+    );
+    process.exit(1);
+  }
+
   console.log("🌱 Comenzando seed de PromptForge Pro...");
 
   // Limpia datos existentes (en orden por las claves foráneas, incluye tablas nuevas)

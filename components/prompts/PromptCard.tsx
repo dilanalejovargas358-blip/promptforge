@@ -126,11 +126,8 @@ export default function PromptCard({
           </div>
         </div>
 
-        {/* Fila de acción: todo gratis + apoyar (acción principal) */}
-        <div className="mt-3 flex items-center justify-between gap-3">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-secondary/15 px-3 py-1 text-xs font-bold text-secondary">
-            ✦ Gratis
-          </span>
+        {/* Fila de acción: reportar + apoyar (acción principal) */}
+        <div className="mt-3 flex items-center justify-end gap-3">
           <div className="flex items-center gap-1">
             {/* Reportar: por encima del enlace de la tarjeta, como el apoyo */}
             <ReportPromptButton

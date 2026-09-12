@@ -4,7 +4,7 @@ import { getDbUser } from "@/lib/credits";
 
 export const dynamic = "force-dynamic";
 
-// Guarda un prompt optimizado en la biblioteca del usuario logueado.
+// Guarda un prompt (optimizado o generado) en la biblioteca del usuario.
 export async function POST(req: Request) {
   const user = await getDbUser();
   if (!user) {

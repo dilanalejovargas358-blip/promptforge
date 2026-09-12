@@ -72,8 +72,9 @@ export default function GeneratorPage() {
           originalPrompt: description,
           optimizedPrompt: generatedPrompt,
           improvements: [`Prompt generado desde: "${description}"`],
-          scoreBefore: 0,
-          scoreAfter: 100,
+          // Un prompt generado no tiene puntuación: no hay "antes" que comparar.
+          scoreBefore: null,
+          scoreAfter: null,
         }),
       });
 

@@ -96,9 +96,11 @@ export default async function PromptDetailPage({ params }: PageProps) {
               ⚠️ Este prompt está en revisión
             </p>
             <p className="mt-1 text-sm text-white/85">
-              {isOwner
-                ? "Un administrador lo está revisando, así que no aparece en el catálogo. Te avisaremos del resultado."
-                : "Un administrador lo está revisando. Solo tú y el equipo podéis verlo."}
+              Este prompt está en revisión por moderación. Solo el autor y el
+              equipo de administración pueden verlo mientras tanto.
+              {/* Solo para el autor: qué implica y que se le avisará. */}
+              {isOwner &&
+                " No aparecerá en el catálogo hasta que termine la revisión. Se te notificará el resultado."}
               {prompt.moderationNote ? ` Motivo: ${prompt.moderationNote}` : ""}
             </p>
           </div>
@@ -171,10 +173,7 @@ export default async function PromptDetailPage({ params }: PageProps) {
         {/* Apoyar (acción principal del modelo gratuito) */}
         <div className="glass mt-8 flex flex-col items-center justify-between gap-4 p-5 text-center sm:flex-row sm:p-6 sm:text-left">
           <div>
-            <div className="text-2xl font-extrabold">
-              <span className="gradient-text">✦ Gratis</span>
-            </div>
-            <p className="mt-1 text-sm text-muted">
+            <p className="text-sm text-muted">
               Propietario: {prompt.author.name}
             </p>
             <p className="mt-1 text-sm text-muted">

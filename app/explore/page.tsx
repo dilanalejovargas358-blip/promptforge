@@ -73,8 +73,6 @@ export default async function ExplorePage({ searchParams }: PageProps) {
     description: p.description,
     category: p.category,
     model: p.model,
-    price: p.price,
-    isPaid: p.isPaid,
     isFeatured: p.isFeatured,
     views: p.views,
     savesCount: p.savesCount,

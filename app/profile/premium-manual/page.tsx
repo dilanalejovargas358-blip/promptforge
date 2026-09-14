@@ -15,6 +15,12 @@ export const metadata: Metadata = {
 // hasta el siguiente despliegue.
 export const dynamic = "force-dynamic";
 
+/** La columna es String en Prisma; aquí se estrecha a los dos valores reales. */
+function asMethod(value: string | undefined): "yolo" | "binance" | null {
+  if (!value) return null;
+  return value === "binance" ? "binance" : "yolo";
+}
+
 export default async function PremiumManualPage() {
   // `getConfig` no depende de la sesión: lanzarlo a la vez ahorra un viaje de ida
   // y vuelta completo.
@@ -31,15 +37,17 @@ export default async function PremiumManualPage() {
   if (!user) redirect("/login");
 
   // Si ya hay una solicitud en la cola, el botón no debe ofrecer crear otra.
+  // Se trae también el método para que la pantalla de espera pueda decir por
+  // dónde pagó sin esperar al primer sondeo.
   const pending = await prisma.premiumRequest.findFirst({
     where: { userId: user.id, status: "PENDING" },
-    select: { id: true },
+    select: { method: true },
   });
 
   return (
     <PremiumManualOptions
       isPremium={isPremiumActive(user)}
-      hasPending={pending !== null}
+      pendingMethod={asMethod(pending?.method)}
       priceUsd={config.premiumPriceUsd}
       exchangeRate={config.usdToBobRate}
       totalBs={totalBob(config)}

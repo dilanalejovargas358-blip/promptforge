@@ -30,8 +30,8 @@ export default async function AdminPremiumPage() {
         <div>
           <h2 className="text-lg font-bold">Solicitudes de Premium</h2>
           <p className="mt-1 text-xs text-muted">
-            Confirma solo si el pago llegó por QR (Bolivia). Al confirmar se
-            activan 30 días y 25 créditos IA.
+            Confirma solo si el pago llegó (QR Bolivia o Binance Pay). Al
+            confirmar se activan 30 días y 25 créditos IA.
           </p>
         </div>
         <span className="rounded-full bg-white/5 px-3 py-1 text-sm font-bold tabular-nums">
@@ -60,6 +60,10 @@ export default async function AdminPremiumPage() {
                     <span className="text-muted">{r.user.email}</span>
                     <span className="text-muted">·</span>
                     <span className="text-muted">{formatDate(r.createdAt)}</span>
+                    <span className="text-muted">·</span>
+                    <span className="rounded-full bg-white/5 px-2 py-0.5 font-semibold text-white/80">
+                      {r.method === "binance" ? "Binance ₿" : "QR Bolivia 🇧🇴"}
+                    </span>
                     <span className="text-muted">·</span>
                     <span
                       className={late ? "font-semibold text-red-400" : "text-muted"}

@@ -12,9 +12,18 @@ const WAIT_SECONDS = 15 * 60;
 const POLL_MS = 10_000;
 const REDIRECT_MS = 3_000;
 
+type MethodId = "yolo" | "binance";
+
+/** Nombre del método tal como se lee en la pantalla de espera. */
+const METHOD_LABEL: Record<MethodId, string> = {
+  yolo: "QR Bolivia",
+  binance: "Binance",
+};
+
 interface Props {
   isPremium: boolean;
-  hasPending: boolean;
+  /** Método de la solicitud en cola, o null si no hay ninguna. */
+  pendingMethod: MethodId | null;
   /** Los tres precios vienen de Config (/admin/config), no de constantes. */
   priceUsd: number;
   exchangeRate: number;
@@ -27,7 +36,7 @@ type View = "form" | "waiting" | "approved" | "rejected";
 
 export default function PremiumManualOptions({
   isPremium,
-  hasPending,
+  pendingMethod,
   priceUsd,
   exchangeRate,
   totalBs,
@@ -35,7 +44,10 @@ export default function PremiumManualOptions({
 }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState<string | null>("yolo");
-  const [view, setView] = useState<View>(hasPending ? "waiting" : "form");
+  const [view, setView] = useState<View>(pendingMethod ? "waiting" : "form");
+  // Se siembra con el método de la solicitud en cola (caso de recarga) y lo
+  // actualizan tanto el envío como el primer sondeo.
+  const [activeMethod, setActiveMethod] = useState<MethodId | null>(pendingMethod);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rejection, setRejection] = useState<string | null>(null);
@@ -46,16 +58,21 @@ export default function PremiumManualOptions({
   const [startedAt, setStartedAt] = useState(() => Date.now());
   const [remaining, setRemaining] = useState(WAIT_SECONDS);
 
-  async function requestActivation() {
+  async function requestActivation(method: MethodId) {
     setSending(true);
     setError(null);
     try {
-      const res = await fetch("/api/premium/request", { method: "POST" });
+      const res = await fetch("/api/premium/request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ method }),
+      });
       const d = await res.json().catch(() => null);
       if (!res.ok) {
         setError(d?.error ?? "No se pudo registrar la solicitud.");
         return;
       }
+      setActiveMethod(method);
       // El POST ya devuelve la solicitud: el contador arranca con su hora real
       // sin esperar al primer sondeo.
       if (d?.request?.createdAt) {
@@ -86,6 +103,12 @@ export default function PremiumManualOptions({
         if (cancelled) return;
 
         if (d?.createdAt) setStartedAt(new Date(d.createdAt).getTime());
+
+        // El sondeo confirma el método real de la solicitud en cola: es la
+        // fuente de verdad, no lo que el usuario acaba de pulsar en el cliente.
+        if (d?.method === "yolo" || d?.method === "binance") {
+          setActiveMethod(d.method);
+        }
 
         if (d?.status === "APPROVED") {
           setView("approved");
@@ -161,7 +184,9 @@ export default function PremiumManualOptions({
             ⏳
           </div>
           <h1 className="mt-5 text-2xl font-extrabold">
-            Estamos verificando tu pago
+            {activeMethod
+              ? `Estamos verificando tu pago por ${METHOD_LABEL[activeMethod]}`
+              : "Estamos verificando tu pago"}
           </h1>
           <p className="mt-2 text-sm text-muted">
             Esto puede tardar hasta 15 minutos.
@@ -226,13 +251,40 @@ export default function PremiumManualOptions({
     );
   }
 
-  const methods = [
+  // Unión discriminada: las tarjetas deshabilitadas no tienen QR ni pasos, así
+  // que el render de abajo puede estrechar por `m.enabled` sin comprobaciones
+  // defensivas ni `!` sobre campos opcionales.
+  type Method =
+    | {
+        id: MethodId;
+        icon: string;
+        name: string;
+        note: string;
+        enabled: true;
+        qr: string;
+        amountLabel: string;
+        appName: string;
+        steps: string[];
+      }
+    | { id: "visa"; icon: string; name: string; note: string; enabled: false };
+
+  const methods: Method[] = [
     {
       id: "yolo",
       icon: "🇧🇴",
       name: "Pago por QR - Bolivia",
       note: `${totalBs} Bs · disponible ahora`,
       enabled: true,
+      qr: qrImageUrl,
+      amountLabel: `${totalBs} Bs`,
+      appName: "YOLO Pago",
+      steps: [
+        "Abre la app de YOLO Pago",
+        "Escanea el QR de arriba",
+        `Verifica que el monto sea ${totalBs} Bs`,
+        "Confirma el pago con tu PIN",
+        "Pulsa el botón de abajo para avisarnos",
+      ],
     },
     {
       id: "visa",
@@ -242,11 +294,21 @@ export default function PremiumManualOptions({
       enabled: false,
     },
     {
-      id: "cripto",
+      id: "binance",
       icon: "₿",
-      name: "Cripto (Binance)",
-      note: "Pago con criptomonedas",
-      enabled: false,
+      name: "Binance Pay",
+      note: `${priceUsd} USDT · disponible ahora`,
+      enabled: true,
+      qr: "/images/binance-qr.png",
+      amountLabel: `${priceUsd} USDT`,
+      appName: "Binance",
+      steps: [
+        "Abre tu app de Binance",
+        "Escanea el QR de arriba",
+        `Paga ${priceUsd} USDT`,
+        "Confirma la transferencia",
+        "Pulsa el botón de abajo para avisarnos",
+      ],
     },
   ];
 
@@ -303,16 +365,16 @@ export default function PremiumManualOptions({
                   )}
                 </button>
 
-                {isOpen && (
+                {m.enabled && isOpen && (
                   <div className="border-t border-white/10 p-5">
                     <div className="flex flex-col items-center gap-4 rounded-2xl bg-white/5 p-6">
                       <p className="text-sm text-muted">
-                        Escanea este QR con la app de YOLO Pago
+                        Escanea este QR con la app de {m.appName}
                       </p>
                       <div className="relative h-56 w-56 overflow-hidden rounded-xl border-2 border-white/20">
                         <Image
-                          src={qrImageUrl}
-                          alt="QR de pago de PromptForge Premium"
+                          src={m.qr}
+                          alt={`QR de pago de PromptForge Premium (${m.name})`}
                           fill
                           className="object-contain"
                         />
@@ -320,25 +382,20 @@ export default function PremiumManualOptions({
                       <p className="text-center text-sm font-medium text-white">
                         Monto a pagar:{" "}
                         <span className="gradient-text font-bold">
-                          {totalBs} Bs
+                          {m.amountLabel}
                         </span>
                       </p>
                     </div>
 
                     <ol className="mt-5 list-inside list-decimal space-y-1 text-sm text-muted">
-                      <li>Abre la app de YOLO Pago</li>
-                      <li>Escanea el QR de arriba</li>
-                      <li>
-                        Verifica que el monto sea{" "}
-                        <strong className="text-white">{totalBs} Bs</strong>
-                      </li>
-                      <li>Confirma el pago con tu PIN</li>
-                      <li>Pulsa el botón de abajo para avisarnos</li>
+                      {m.steps.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
                     </ol>
 
                     <button
                       type="button"
-                      onClick={requestActivation}
+                      onClick={() => requestActivation(m.id)}
                       disabled={sending || isPremium}
                       className="btn-primary mt-5 w-full disabled:opacity-50"
                     >

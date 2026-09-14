@@ -18,6 +18,7 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
     select: {
       status: true,
+      method: true,
       rejectionReason: true,
       resolvedAt: true,
       createdAt: true,
@@ -30,6 +31,7 @@ export async function GET() {
 
   return NextResponse.json({
     status: request.status,
+    method: request.method,
     rejectionReason: request.rejectionReason ?? undefined,
     resolvedAt: request.resolvedAt,
     createdAt: request.createdAt,

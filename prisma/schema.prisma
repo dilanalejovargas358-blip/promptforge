@@ -187,6 +187,9 @@ model PremiumRequest {
   userId          String
   // PENDING | APPROVED | REJECTED
   status          String    @default("PENDING")
+  // "yolo" | "binance". Informativo para el admin: el flujo de aprobación es
+  // idéntico en ambos casos, esto solo dice por dónde dice el usuario que pagó.
+  method          String    @default("yolo")
   createdAt       DateTime  @default(now())
   resolvedAt      DateTime?
   resolvedBy      String?

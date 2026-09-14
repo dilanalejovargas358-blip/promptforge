@@ -45,7 +45,7 @@ export async function POST(_req: Request, ctx: Ctx) {
   if (!charged) {
     return NextResponse.json(
       {
-        error: "No tienes rayitos. Se regeneran 1 por hora (máx 5).",
+        error: "No tienes rayitos. Se regeneran 1 por hora (máx 10).",
         code: "INSUFFICIENT_RAYS",
       },
       { status: 402 }

@@ -1,7 +1,14 @@
 import Link from "next/link";
 
-// Solo rutas que existen de verdad: antes había enlaces a /terms y /privacy,
-// que no tienen página y llevaban a un 404.
+// Solo rutas que existen de verdad: en su día hubo enlaces a /terms y /privacy
+// que llevaban a un 404 y se quitaron. Ya existen esas páginas, así que están
+// de vuelta en la columna "Legal".
+//
+// Esta columna va en español a propósito. El Footer es un Server Component que
+// forma parte del árbol del layout raíz de TODAS las rutas: leer aquí la cookie
+// de idioma con `cookies()` convertiría "/" y "/explore" en dinámicas (son ISR
+// con revalidate = 30) sin dar ningún error de compilación. Las páginas legales
+// sí son bilingües y llevan su propio selector.
 const FOOTER_COLS = [
   {
     title: "Plataforma",
@@ -19,6 +26,16 @@ const FOOTER_COLS = [
       { label: "Crear cuenta", href: "/register" },
     ],
   },
+  {
+    title: "Legal",
+    links: [
+      { label: "Términos de Uso", href: "/terms" },
+      { label: "Privacidad", href: "/privacy" },
+      { label: "Cookies", href: "/cookies" },
+      { label: "Reembolsos", href: "/refunds" },
+      { label: "Contacto", href: "/contact" },
+    ],
+  },
 ];
 
 export default function Footer() {
@@ -31,7 +48,7 @@ export default function Footer() {
         <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-primary/15 blur-[100px]" />
         <div className="pointer-events-none absolute -left-24 -bottom-24 h-64 w-64 rounded-full bg-secondary/15 blur-[100px]" />
 
-        <div className="relative grid gap-8 sm:grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr] md:gap-10">
+        <div className="relative grid gap-8 sm:grid-cols-2 md:grid-cols-[1.6fr_1fr_1fr_1fr] md:gap-10">
           {/* Marca */}
           <div className="sm:col-span-2 md:col-span-1">
             <Link href="/" className="flex items-center gap-2">

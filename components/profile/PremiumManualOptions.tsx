@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SUPPORT_EMAIL } from "@/lib/legal/types";
 
 // La verificación es manual: la espera da 15 minutos de margen antes de derivar
 // a soporte, y el sondeo busca la aprobación sin que el usuario recargue.
@@ -178,10 +179,10 @@ export default function PremiumManualOptions({
             <p className="mt-6 rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-muted">
               Si ya pasaron más de 15 minutos y no se activa, escríbenos a{" "}
               <a
-                href="mailto:soporte@promptforge.com"
+                href={`mailto:${SUPPORT_EMAIL}`}
                 className="font-semibold text-secondary"
               >
-                soporte@promptforge.com
+                {SUPPORT_EMAIL}
               </a>
             </p>
           ) : (

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import PromptCard from "@/components/prompts/PromptCard";
 import { CATEGORY_MAP } from "@/components/ui/CategoryIcon";
+import { SearchX, Sparkles, X } from "lucide-react";
 import type { PromptCardData } from "@/types";
 
 export const metadata: Metadata = {
@@ -91,7 +92,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   return (
     <div className="relative min-h-screen">
       {/* Fondo ambiental */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-accent/10 via-primary/5 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-accent/10 via-accent/5 to-transparent" />
 
       <div className="relative mx-auto max-w-6xl px-4 py-12 md:px-6">
         {/* Encabezado */}
@@ -116,14 +117,15 @@ export default async function ExplorePage({ searchParams }: PageProps) {
                   : "glass opacity-80 hover:opacity-100"
               }`}
             >
-              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-xl text-white sm:h-12 sm:w-12 sm:text-2xl">
-                ✨
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white sm:h-12 sm:w-12">
+                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.75} />
               </span>
               <span className="text-sm font-semibold">Todos</span>
             </Link>
 
             {FEATURED_CATEGORIES.map((cat) => {
               const meta = CATEGORY_MAP[cat];
+              const Icon = meta.icon;
               const active = category === cat;
               const base = authorId
                 ? `/explore?authorId=${encodeURIComponent(authorId)}`
@@ -140,9 +142,9 @@ export default async function ExplorePage({ searchParams }: PageProps) {
                   }`}
                 >
                   <span
-                    className={`flex h-11 w-11 items-center justify-center rounded-xl text-xl sm:h-12 sm:w-12 sm:text-2xl ${meta.bg} ${meta.color} transition-transform duration-300 group-hover:scale-125`}
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl sm:h-12 sm:w-12 ${meta.bg} ${meta.color} transition-transform duration-300 group-hover:scale-125`}
                   >
-                    {meta.icon}
+                    <Icon className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={1.75} />
                   </span>
                   <span className="text-sm font-semibold">{cat}</span>
                 </Link>
@@ -167,17 +169,17 @@ export default async function ExplorePage({ searchParams }: PageProps) {
             {query && (
               <Link
                 href={authorId ? `/explore?authorId=${encodeURIComponent(authorId)}` : "/explore"}
-                className="text-sm font-semibold text-secondary hover:underline"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-accent hover:underline"
               >
-                Limpiar búsqueda ✕
+                Limpiar búsqueda <X className="h-3.5 w-3.5" />
               </Link>
             )}
             {authorName && (
               <Link
                 href="/explore"
-                className="text-sm font-semibold text-secondary hover:underline"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-accent hover:underline"
               >
-                Ver todos ✕
+                Ver todos <X className="h-3.5 w-3.5" />
               </Link>
             )}
           </div>
@@ -185,14 +187,14 @@ export default async function ExplorePage({ searchParams }: PageProps) {
 
         {mapped.length === 0 ? (
           <div className="fade-up glass mx-auto mt-8 max-w-md p-10 text-center">
-            <div className="text-4xl">🪐</div>
+            <SearchX className="mx-auto h-10 w-10 text-muted" strokeWidth={1.5} />
             <p className="mt-4 font-semibold">Sin resultados</p>
             <p className="mt-1 text-sm text-muted">
               Prueba con otra búsqueda o categoría.{" "}
               {query && (
                 <span>
                   ¿O quieres{" "}
-                  <Link href="/prompt/nuevo" className="text-secondary hover:underline">
+                  <Link href="/prompt/nuevo" className="text-accent hover:underline">
                     publicar uno
                   </Link>
                   ?

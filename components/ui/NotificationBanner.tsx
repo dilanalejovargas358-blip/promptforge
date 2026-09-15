@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { CircleCheck, TriangleAlert } from "lucide-react";
 
 interface Notification {
   id: string;
@@ -52,8 +53,13 @@ export default function NotificationBanner() {
           className={`glass flex flex-col gap-5 rounded-2xl border p-4 sm:flex-row sm:items-start sm:justify-between ${boxClass(n.type)}`}
         >
           <div className="min-w-0">
-            <p className={`font-bold ${titleClass(n.type)}`}>
-              {n.type === "PREMIUM_APPROVED" ? "✅" : "⚠️"} {n.title}
+            <p className={`flex items-center gap-1.5 font-bold ${titleClass(n.type)}`}>
+              {n.type === "PREMIUM_APPROVED" ? (
+                <CircleCheck className="h-4 w-4 shrink-0" strokeWidth={2.25} />
+              ) : (
+                <TriangleAlert className="h-4 w-4 shrink-0" strokeWidth={2.25} />
+              )}
+              {n.title}
             </p>
             <p className="mt-1 text-sm text-white/85">{n.message}</p>
             <p className="mt-1.5 text-xs text-muted">{formatDate(n.createdAt)}</p>
@@ -87,12 +93,12 @@ export default function NotificationBanner() {
 // distingue por el motivo que va en el mensaje.
 function boxClass(type: string): string {
   return type === "PREMIUM_APPROVED"
-    ? "border-secondary/40 bg-secondary/10"
+    ? "border-accent/40 bg-accent/10"
     : "border-red-500/30 bg-red-500/10";
 }
 
 function titleClass(type: string): string {
-  return type === "PREMIUM_APPROVED" ? "text-secondary" : "text-red-400";
+  return type === "PREMIUM_APPROVED" ? "text-accent" : "text-red-400";
 }
 
 function formatDate(iso: string): string {

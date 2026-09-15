@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function NewPromptPage() {
   return (
     <div className="relative min-h-screen">
-      <div className="pointer-events-none absolute -top-20 right-0 h-[300px] w-[300px] rounded-full bg-yellow-brand/15 blur-[110px]" />
+      <div className="pointer-events-none absolute -top-20 right-0 h-[300px] w-[300px] rounded-full bg-accent/10 blur-[110px]" />
 
       <div className="relative mx-auto w-full max-w-3xl px-4 py-12 sm:px-6">
         <h1 className="text-center text-3xl font-extrabold sm:text-4xl">

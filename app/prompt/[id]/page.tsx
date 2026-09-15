@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/auth";
 import SupportPromptButton from "@/components/prompts/SupportPromptButton";
 import ReportPromptButton from "@/components/prompts/ReportPromptButton";
+import { Bookmark, Eye, Star, TriangleAlert } from "lucide-react";
 
 // La página depende de la sesión (el autor y los admins ven los prompts en
 // revisión), así que no puede servirse desde caché estática.
@@ -87,13 +88,14 @@ export default async function PromptDetailPage({ params }: PageProps) {
 
   return (
     <div className="relative min-h-screen">
-      <div className="pointer-events-none absolute -top-20 left-0 h-[300px] w-[400px] rounded-full bg-primary/15 blur-[110px]" />
+      <div className="pointer-events-none absolute -top-20 left-0 h-[300px] w-[400px] rounded-full bg-accent/15 blur-[110px]" />
 
       <div className="relative mx-auto w-full max-w-4xl px-4 py-12 sm:px-6">
         {underReview && (
-          <div className="glass mb-6 rounded-2xl border border-yellow-brand/40 bg-yellow-brand/10 p-4">
-            <p className="font-bold text-yellow-brand">
-              ⚠️ Este prompt está en revisión
+          <div className="glass mb-6 rounded-2xl border border-warning/40 bg-warning/10 p-4">
+            <p className="flex items-center gap-2 font-bold text-warning">
+              <TriangleAlert className="h-4 w-4 shrink-0" strokeWidth={2.25} />
+              Este prompt está en revisión
             </p>
             <p className="mt-1 text-sm text-white/85">
               Este prompt está en revisión por moderación. Solo el autor y el
@@ -108,15 +110,16 @@ export default async function PromptDetailPage({ params }: PageProps) {
 
         {/* Categoría + modelo */}
         <div className="flex flex-wrap items-center gap-2.5 sm:gap-3">
-          <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-secondary">
+          <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-accent">
             {prompt.category}
           </span>
           <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-accent">
             {prompt.model}
           </span>
           {prompt.isFeatured && (
-            <span className="rounded-full bg-gradient-to-r from-yellow-brand to-primary px-3 py-1 text-xs font-bold text-background">
-              ⭐ Destacado
+            <span className="inline-flex items-center gap-1 rounded-full bg-premium px-3 py-1 text-xs font-bold text-background">
+              <Star className="h-3 w-3 fill-background" strokeWidth={2.5} />
+              Destacado
             </span>
           )}
         </div>
@@ -135,15 +138,21 @@ export default async function PromptDetailPage({ params }: PageProps) {
                 className="h-8 w-8 rounded-full object-cover"
               />
             ) : (
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-secondary to-accent text-sm font-bold text-background">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent text-sm font-bold text-background">
                 {prompt.author.name?.charAt(0) ?? "?"}
               </span>
             )}
             <span>{prompt.author.name ?? "Anónimo"}</span>
           </div>
-          <span>👁️ {prompt.views} vistas</span>
-          <span>🔖 {prompt.savesCount} guardados</span>
-          <span className="font-semibold text-secondary">
+          <span className="inline-flex items-center gap-1.5">
+            <Eye className="h-4 w-4" strokeWidth={1.75} />
+            {prompt.views} vistas
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Bookmark className="h-4 w-4" strokeWidth={1.75} />
+            {prompt.savesCount} guardados
+          </span>
+          <span className="font-semibold text-accent">
             ⚡ {prompt.totalCredits} apoyos
           </span>
           <span>{formatDate(prompt.createdAt)}</span>

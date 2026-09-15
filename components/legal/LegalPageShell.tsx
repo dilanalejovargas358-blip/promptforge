@@ -49,7 +49,7 @@ export default function LegalPageShell({
   return (
     <div className="relative min-h-screen">
       {/* Fondo ambiental, igual que el resto del sitio */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-accent/10 via-primary/5 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-accent/10 via-accent/5 to-transparent" />
 
       {/* `lang` marca el contenido en inglés para lectores de pantalla (el
           <html lang="es"> del layout raíz no se toca: leerlo con cookies() ahí
@@ -63,7 +63,7 @@ export default function LegalPageShell({
             {/* El selector vive aquí y no en el Navbar: solo estas 5 páginas son
                 bilingües, así que en el resto del sitio no tendría efecto. */}
             <div className="flex items-center justify-between gap-4">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-secondary">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-accent">
                 {t.badge}
               </p>
               <LanguageToggle />
@@ -78,7 +78,7 @@ export default function LegalPageShell({
           </header>
 
           {doc.notice && (
-            <p className="glass mt-8 border-l-2 border-l-secondary/60 p-4 text-sm leading-relaxed text-muted">
+            <p className="glass mt-8 border-l-2 border-l-accent/60 p-4 text-sm leading-relaxed text-muted">
               {doc.notice}
             </p>
           )}
@@ -90,7 +90,7 @@ export default function LegalPageShell({
                   <li key={section.id}>
                     <a
                       href={`#${section.id}`}
-                      className="text-muted transition-colors hover:text-secondary"
+                      className="text-muted transition-colors hover:text-accent"
                     >
                       {section.heading}
                     </a>
@@ -143,7 +143,7 @@ function BlockView({ block }: { block: Block }) {
       return <p className="text-sm leading-relaxed text-muted">{block.text}</p>;
     case "ul":
       return (
-        <ul className="ml-5 list-disc space-y-1.5 text-sm leading-relaxed text-muted marker:text-secondary">
+        <ul className="ml-5 list-disc space-y-1.5 text-sm leading-relaxed text-muted marker:text-accent">
           {block.items.map((item, index) => (
             <li key={index}>{item}</li>
           ))}
@@ -151,7 +151,7 @@ function BlockView({ block }: { block: Block }) {
       );
     case "ol":
       return (
-        <ol className="ml-5 list-decimal space-y-1.5 text-sm leading-relaxed text-muted marker:text-secondary">
+        <ol className="ml-5 list-decimal space-y-1.5 text-sm leading-relaxed text-muted marker:text-accent">
           {block.items.map((item, index) => (
             <li key={index}>{item}</li>
           ))}

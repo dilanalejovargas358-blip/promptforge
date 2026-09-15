@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import { Menu, Search, X } from "lucide-react";
 import { RAYS_MAX } from "@/lib/constants";
 
 interface NavLink {
@@ -58,7 +59,7 @@ export default function Navbar() {
       <nav className="glass-strong mx-auto flex max-w-6xl items-center gap-2 rounded-2xl px-3 py-2.5 sm:gap-3 md:px-5">
         {/* Logo */}
         <Link href="/" className="group flex shrink-0 items-center gap-2">
-          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-yellow-brand to-secondary text-lg font-black text-background shadow-glow-primary transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
+          <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-lg font-black text-background transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
             P
           </span>
           <span className="hidden text-xl font-extrabold tracking-tight sm:block">
@@ -72,9 +73,7 @@ export default function Navbar() {
           className="mx-1 hidden flex-1 items-center md:flex"
         >
           <div className="group relative w-full max-w-xs">
-            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-muted">
-              🔍
-            </span>
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -95,8 +94,8 @@ export default function Navbar() {
                   href={link.href}
                   className={
                     isCta
-                      ? "rounded-lg bg-gradient-to-r from-secondary to-accent px-4 py-2 text-sm font-bold text-background shadow-glow-primary transition-transform duration-200 hover:scale-105"
-                      : "nav-link rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors hover:text-secondary"
+                      ? "rounded-lg bg-accent px-4 py-2 text-sm font-bold text-background shadow-glow transition-transform duration-200 hover:scale-105"
+                      : "nav-link rounded-lg px-4 py-2 text-sm font-semibold text-white transition-colors hover:text-accent"
                   }
                 >
                   {link.label}
@@ -134,7 +133,7 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/register"
-                className="btn-primary !px-5 !py-2 text-sm shadow-glow-primary"
+                className="btn-primary !px-5 !py-2 text-sm shadow-glow"
               >
                 Registrarse
               </Link>
@@ -150,7 +149,7 @@ export default function Navbar() {
           className="ml-auto flex h-11 w-11 items-center justify-center rounded-xl text-2xl leading-none text-white transition-colors hover:bg-white/10 md:hidden lg:ml-0"
           aria-expanded={menuOpen}
         >
-          {menuOpen ? "✕" : "☰"}
+          {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </nav>
 
@@ -159,9 +158,7 @@ export default function Navbar() {
         <div className="glass-strong mx-auto mt-2 max-w-6xl rounded-2xl px-5 py-4 md:hidden">
           {/* Búsqueda móvil */}
           <form onSubmit={submitSearch} className="relative mb-3">
-            <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-muted">
-              🔍
-            </span>
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -180,8 +177,8 @@ export default function Navbar() {
                     onClick={() => setMenuOpen(false)}
                     className={
                       isCta
-                        ? "block w-full rounded-xl bg-gradient-to-r from-secondary to-accent px-4 py-3 text-center text-sm font-bold text-background shadow-glow-primary"
-                        : "block min-h-[44px] rounded-xl px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/5 hover:text-secondary"
+                        ? "block w-full rounded-xl bg-accent px-4 py-3 text-center text-sm font-bold text-background shadow-glow"
+                        : "block min-h-[44px] rounded-xl px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/5 hover:text-accent"
                     }
                   >
                     {link.label}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ChartColumn, Flame, Sparkles, Target, Wrench } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "IA Tools - Edita tus prompts con IA",
@@ -10,24 +11,24 @@ export const metadata: Metadata = {
 const TOOLS = [
   {
     href: "/ia/optimizer",
-    badge: { label: "🔥 Popular", cls: "bg-primary/20 text-primary" },
-    icon: "🔧",
-    iconBg: "from-primary/20 to-primary/0",
+    badge: { label: "Popular", icon: Flame, cls: "bg-accent/15 text-accent" },
+    icon: Wrench,
+    iconBg: "from-accent/20 to-accent/0",
     title: "Optimizar Prompt",
     text: "Mejora tus prompts con IA. Recibe sugerencias y ve los cambios destacados.",
   },
   {
     href: "/ia/generator",
-    badge: { label: "✨ Nuevo", cls: "bg-secondary/20 text-secondary" },
-    icon: "✨",
-    iconBg: "from-secondary/20 to-secondary/0",
+    badge: { label: "Nuevo", icon: Sparkles, cls: "bg-secondary/15 text-secondary" },
+    icon: Sparkles,
+    iconBg: "from-accent/20 to-accent/0",
     title: "Generar Prompt",
     text: "Describe lo que necesitas y la IA crea un prompt profesional para ti.",
   },
   {
     href: "/ia/analyzer",
-    badge: { label: "📊 Beta", cls: "bg-accent/20 text-accent" },
-    icon: "📊",
+    badge: { label: "Beta", icon: ChartColumn, cls: "bg-secondary/15 text-secondary" },
+    icon: ChartColumn,
     iconBg: "from-accent/20 to-accent/0",
     title: "Analizar Prompt",
     text: "Obtén una puntuación de 0 a 100 y descubre cómo mejorar tu prompt.",
@@ -38,7 +39,7 @@ export default function IAToolsPage() {
   return (
     <div className="relative min-h-screen">
       {/* Fondo ambiental */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-accent/10 via-primary/5 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-accent/10 via-accent/5 to-transparent" />
 
       <div className="relative mx-auto max-w-6xl px-4 py-12 md:px-6">
         {/* Encabezado */}
@@ -64,15 +65,16 @@ export default function IAToolsPage() {
               className="group glass p-5 transition-all duration-300 hover:-translate-y-2 hover:shadow-glow sm:p-6"
             >
               <div
-                className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br text-3xl ring-1 ring-white/10 ${tool.iconBg}`}
+                className={`flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br text-accent ring-1 ring-white/10 ${tool.iconBg}`}
               >
-                {tool.icon}
+                <tool.icon className="h-8 w-8" strokeWidth={1.5} />
               </div>
 
               {/* Badge */}
               <span
-                className={`mt-5 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold ${tool.badge.cls}`}
+                className={`mt-5 inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${tool.badge.cls}`}
               >
+                <tool.badge.icon className="h-3 w-3" strokeWidth={2.5} />
                 {tool.badge.label}
               </span>
 
@@ -81,7 +83,7 @@ export default function IAToolsPage() {
                 {tool.text}
               </p>
 
-              <span className="mt-4 inline-block text-sm font-semibold text-secondary group-hover:underline">
+              <span className="mt-4 inline-block text-sm font-semibold text-accent group-hover:underline">
                 Probar →
               </span>
             </Link>
@@ -92,11 +94,15 @@ export default function IAToolsPage() {
         <div className="fade-up mt-16 text-center" style={{ animationDelay: "200ms" }}>
           <div className="glass-strong inline-block rounded-2xl px-8 py-6">
             <p className="text-sm text-muted">
-              🎯 <span className="font-semibold text-white">5 créditos IA gratis</span>{" "}
+              <Target
+                className="mr-1.5 inline h-4 w-4 -translate-y-px text-accent"
+                strokeWidth={2}
+              />{" "}
+              <span className="font-semibold text-white">5 créditos IA gratis</span>{" "}
               al registrarte (1 por uso). ¿Necesitas más?{" "}
               <Link
                 href="/profile"
-                className="ml-1 font-semibold text-secondary hover:underline"
+                className="ml-1 font-semibold text-accent hover:underline"
               >
                 Actualiza a PRO →
               </Link>

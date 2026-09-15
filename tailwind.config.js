@@ -9,25 +9,37 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Paleta PromptForge Pro
-        background: "#0A0A0F",
-        card: "#1A1A2E",
-        primary: "#FF6B6B",
-        secondary: "#4ECDC4",
-        accent: "#C084FC",
-        yellow: {
-          brand: "#FFE66D",
+        // Paleta PromptForge: dark cálido. Ámbar como acento principal y
+        // violeta suave como secundario, solo para variar (nunca para acciones).
+        background: "#0F0F0F",
+        card: "#181818",
+        border: "#2A2A2A",
+        foreground: "#FAFAFA",
+        muted: "#A1A1AA",
+        accent: {
+          DEFAULT: "#F59E0B",
+          hover: "#D97706",
+          subtle: "#78350F",
         },
-        muted: "#B8B8D0",
-        border: "#2A2A3E",
+        secondary: {
+          DEFAULT: "#A78BFA",
+          subtle: "#4C1D95",
+        },
+        // Estados. `warning` es naranja a propósito, no ámbar: el ámbar es el
+        // acento, y un aviso no debe leerse del color de un botón principal.
+        success: "#10B981",
+        warning: "#FB923C",
+        danger: "#F87171",
+        // Dorado propio de las insignias Premium/Destacado. Es distinto de
+        // `warning` a propósito: el ámbar de alerta no debe leerse como premio.
+        premium: "#D4AF37",
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
+        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
       },
       boxShadow: {
-        glow: "0 0 40px rgba(192, 132, 252, 0.25)",
-        "glow-primary": "0 0 40px rgba(255, 107, 107, 0.35)",
-        "glow-secondary": "0 0 40px rgba(78, 205, 196, 0.3)",
+        // Un único glow, tenue, del acento.
+        glow: "0 0 24px rgba(245, 158, 11, 0.18)",
       },
       animation: {
         float: "float 6s ease-in-out infinite",

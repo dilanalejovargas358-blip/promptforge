@@ -8,6 +8,7 @@ import ProfileWallet from "@/components/profile/ProfileWallet";
 import NotificationBanner from "@/components/ui/NotificationBanner";
 import { authorEarnedCredits, isPremiumActive } from "@/lib/credits";
 import { RAYS_MAX } from "@/lib/constants";
+import { CreditCard, Star, UserRound } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Mi Perfil",
@@ -56,10 +57,10 @@ export default async function ProfilePage() {
           <img
             src={user.image}
             alt={user.name ?? "Usuario"}
-            className="mx-auto h-20 w-20 rounded-full object-cover ring-4 ring-secondary/40 sm:h-24 sm:w-24"
+            className="mx-auto h-20 w-20 rounded-full object-cover ring-4 ring-accent/40 sm:h-24 sm:w-24"
           />
         ) : (
-          <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-secondary to-accent text-3xl font-black text-background sm:h-24 sm:w-24 sm:text-4xl">
+          <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent text-3xl font-black text-background sm:h-24 sm:w-24 sm:text-4xl">
             {user.name?.charAt(0) ?? user.email.charAt(0).toUpperCase()}
           </span>
         )}
@@ -75,19 +76,22 @@ export default async function ProfilePage() {
         <p className="mt-2 text-sm text-muted">{user.bio ?? "Sin biografía aún."}</p>
 
         <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-          <span className="glass rounded-full px-4 py-1.5 text-sm">
-            💳 {user.credits} créditos IA
+          <span className="glass inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm">
+            <CreditCard className="h-4 w-4 text-accent" strokeWidth={1.75} />
+            {user.credits} créditos IA
           </span>
           <span className="glass rounded-full px-4 py-1.5 text-sm">
             ⚡ {rays}/{RAYS_MAX} rayitos
           </span>
           {premiumActive ? (
-            <span className="rounded-full bg-gradient-to-r from-yellow-brand to-primary px-4 py-1.5 text-xs font-bold text-background shadow-glow-primary">
-              ⭐ Premium
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-premium/15 px-4 py-1.5 text-xs font-bold text-premium">
+              <Star className="h-3.5 w-3.5 fill-premium" strokeWidth={2} />
+              Premium
             </span>
           ) : (
-            <span className="rounded-full bg-white/5 px-4 py-1.5 text-xs text-muted">
-              👤 {user.role === "ADMIN" ? "Administrador" : "Miembro"}
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-4 py-1.5 text-xs text-muted">
+              <UserRound className="h-3.5 w-3.5" strokeWidth={1.75} />
+              {user.role === "ADMIN" ? "Administrador" : "Miembro"}
             </span>
           )}
         </div>
@@ -96,13 +100,13 @@ export default async function ProfilePage() {
       {/* Estadísticas rápidas */}
       <div className="mt-6 grid grid-cols-3 gap-3 sm:gap-4">
         <div className="glass p-3 text-center sm:p-4">
-          <div className="text-xl font-bold text-secondary sm:text-2xl">
+          <div className="text-xl font-bold text-accent sm:text-2xl">
             {user.prompts.length}
           </div>
           <div className="text-xs text-muted">Prompts</div>
         </div>
         <div className="glass p-3 text-center sm:p-4">
-          <div className="text-xl font-bold text-yellow-brand sm:text-2xl">
+          <div className="text-xl font-bold text-premium sm:text-2xl">
             {rays}
           </div>
           <div className="text-xs text-muted">Rayitos</div>
@@ -146,7 +150,7 @@ export default async function ProfilePage() {
               <li key={prompt.id}>
                 <Link
                   href={`/prompt/${prompt.id}`}
-                  className="glass flex items-center justify-between gap-3 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary/40"
+                  className="glass flex items-center justify-between gap-3 p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-semibold">{prompt.title}</div>

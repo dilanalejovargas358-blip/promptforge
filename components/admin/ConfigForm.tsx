@@ -105,7 +105,7 @@ export default function ConfigForm({ initial }: { initial: Config }) {
   })();
 
   const field =
-    "mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-muted/60 focus:border-secondary focus:outline-none";
+    "mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-muted/60 focus:border-accent focus:outline-none";
 
   return (
     <div className="mt-6 space-y-6">
@@ -177,7 +177,7 @@ export default function ConfigForm({ initial }: { initial: Config }) {
               cambios» para aplicarla.
             </p>
             {uploading && (
-              <p className="mt-2 text-xs font-semibold text-secondary">
+              <p className="mt-2 text-xs font-semibold text-accent">
                 Subiendo…
               </p>
             )}
@@ -191,7 +191,7 @@ export default function ConfigForm({ initial }: { initial: Config }) {
         </p>
       )}
       {ok && (
-        <p className="rounded-xl border border-secondary/30 bg-secondary/10 p-3 text-sm text-secondary">
+        <p className="rounded-xl border border-accent/30 bg-accent/10 p-3 text-sm text-accent">
           {ok}
         </p>
       )}

@@ -5,6 +5,19 @@ import Link from "next/link";
 import CreditCounter from "@/components/ui/CreditCounter";
 import { RAYS_MAX } from "@/lib/constants";
 import type { CreditTransaction } from "@/types";
+import type { LucideIcon } from "lucide-react";
+import {
+  BadgeCheck,
+  ClipboardList,
+  Coins,
+  DollarSign,
+  Heart,
+  Minus,
+  Plus,
+  Star,
+  Wallet,
+  Zap,
+} from "lucide-react";
 
 interface ProfileWalletProps {
   initialCredits: number;
@@ -60,13 +73,15 @@ export default function ProfileWallet({
   }, []);
 
   const premium = data.isPremiumActive;
-  const typeIcon: Record<string, string> = {
-    EARN: "➕",
-    SPEND: "➖",
-    DONATE: "❤️",
-    PREMIUM: "⭐",
-    RAY_EARN: "⚡",
-    RAY_SPEND: "⚡",
+  // Icono y color de cada movimiento. Las entradas/salidas llevan el signo en
+  // el propio icono (Plus/Minus), así que no hace falta texto adicional.
+  const TYPE_ICON: Record<string, { Icon: LucideIcon; cls: string }> = {
+    EARN: { Icon: Plus, cls: "text-success" },
+    SPEND: { Icon: Minus, cls: "text-muted" },
+    DONATE: { Icon: Heart, cls: "text-danger" },
+    PREMIUM: { Icon: Star, cls: "text-premium" },
+    RAY_EARN: { Icon: Zap, cls: "text-accent" },
+    RAY_SPEND: { Icon: Zap, cls: "text-muted" },
   };
 
   return (
@@ -75,7 +90,10 @@ export default function ProfileWallet({
         {/* Monedero: créditos IA + rayitos */}
         <div className="glass p-5 sm:p-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold">💰 Tu monedero</h3>
+            <h3 className="flex items-center gap-2 text-lg font-bold">
+              <Wallet className="h-5 w-5 text-accent" strokeWidth={1.75} />
+              Tu monedero
+            </h3>
             <CreditCounter
               initialCredits={initialCredits}
               className="rounded-full bg-white/5 px-3 py-1 text-sm"
@@ -88,7 +106,11 @@ export default function ProfileWallet({
 
           {premium ? (
             <p className="mt-3 text-sm text-muted">
-              ⭐ Premium activo: recibes 25 créditos IA cada mes.
+              <Star
+                className="mr-1.5 inline h-4 w-4 -translate-y-px fill-premium text-premium"
+                strokeWidth={2}
+              />
+              Premium activo: recibes 25 créditos IA cada mes.
               {data.premiumUntil && (
                 <span className="mt-1 block text-xs">
                   Válido hasta{" "}
@@ -127,24 +149,36 @@ export default function ProfileWallet({
 
           <p className="mt-4 border-t border-white/10 pt-3 text-sm">
             <span className="text-muted">Apoyos recibidos en tus prompts:</span>{" "}
-            <span className="font-bold text-secondary">⚡ {earned}</span>
+            <span className="font-bold text-accent">⚡ {earned}</span>
           </p>
         </div>
 
         {/* Premium */}
         <div className="glass p-5 sm:p-6">
           <div className="flex items-center justify-between">
-            <h3 className="text-lg font-bold">⭐ PromptForge Premium</h3>
+            <h3 className="flex items-center gap-2 text-lg font-bold">
+              <Star className="h-5 w-5 fill-premium text-premium" strokeWidth={1.75} />
+              PromptForge Premium
+            </h3>
             {premium && (
-              <span className="rounded-full bg-gradient-to-r from-yellow-brand to-primary px-3 py-1 text-xs font-black text-background">
+              <span className="rounded-full bg-premium px-3 py-1 text-xs font-black text-background">
                 ACTIVO
               </span>
             )}
           </div>
           <ul className="mt-3 space-y-1.5 text-sm text-muted">
-            <li>🤖 25 créditos IA cada mes</li>
-            <li>🎖️ Insignia Premium en tu perfil</li>
-            <li className="text-white">💵 $1.99 / mes</li>
+            <li className="flex items-center gap-2">
+              <Coins className="h-4 w-4 shrink-0 text-accent" strokeWidth={2} />
+              25 créditos IA cada mes
+            </li>
+            <li className="flex items-center gap-2">
+              <BadgeCheck className="h-4 w-4 shrink-0 text-accent" strokeWidth={2} />
+              Insignia Premium en tu perfil
+            </li>
+            <li className="flex items-center gap-2 text-white">
+              <DollarSign className="h-4 w-4 shrink-0 text-accent" strokeWidth={2} />
+              $1.99 / mes
+            </li>
           </ul>
           {!premium && (
             <Link
@@ -159,25 +193,40 @@ export default function ProfileWallet({
 
       {/* Historial de créditos */}
       <div className="glass p-5 sm:p-6">
-        <h3 className="text-base font-bold sm:text-lg">📒 Movimientos recientes</h3>
+        <h3 className="flex items-center gap-2 text-base font-bold sm:text-lg">
+          <ClipboardList className="h-5 w-5 text-accent" strokeWidth={1.75} />
+          Movimientos recientes
+        </h3>
         {data.history.length === 0 ? (
           <p className="mt-3 text-sm text-muted">
             Aún no hay movimientos. Apoya prompts para empezar.
           </p>
         ) : (
           <ul className="mt-4 divide-y divide-white/10">
-            {data.history.slice(0, 8).map((t) => (
-              <li key={t.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
-                <div className="flex min-w-0 items-center gap-2">
-                  <span className="shrink-0 text-base">{typeIcon[t.type] ?? "•"}</span>
-                  <span className="truncate text-muted">{t.description}</span>
-                </div>
-                <span className="shrink-0 tabular-nums font-semibold">
-                  {t.type === "SPEND" || t.type === "RAY_SPEND" ? "-" : "+"}
-                  {Math.abs(t.amount)}
-                </span>
-              </li>
-            ))}
+            {data.history.slice(0, 8).map((t) => {
+              const meta = TYPE_ICON[t.type];
+              const TypeIcon = meta?.Icon ?? Minus;
+              return (
+                <li
+                  key={t.id}
+                  className="flex items-center justify-between gap-3 py-2.5 text-sm"
+                >
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span className="shrink-0">
+                      <TypeIcon
+                        className={`h-4 w-4 ${meta?.cls ?? "text-muted"}`}
+                        strokeWidth={2}
+                      />
+                    </span>
+                    <span className="truncate text-muted">{t.description}</span>
+                  </div>
+                  <span className="shrink-0 tabular-nums font-semibold">
+                    {t.type === "SPEND" || t.type === "RAY_SPEND" ? "-" : "+"}
+                    {Math.abs(t.amount)}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
         )}
       </div>

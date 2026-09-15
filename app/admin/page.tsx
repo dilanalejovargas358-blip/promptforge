@@ -40,7 +40,7 @@ export default async function AdminIndexPage() {
         <Link
           key={q.href}
           href={q.href}
-          className="glass p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-secondary/40"
+          className="glass p-6 transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/40"
         >
           <div className="flex items-start justify-between gap-4">
             <h2 className="text-lg font-bold">{q.title}</h2>
@@ -57,7 +57,7 @@ export default async function AdminIndexPage() {
             )}
           </div>
           <p className="mt-2 text-sm text-muted">{q.detail}</p>
-          <span className="mt-4 inline-block text-sm text-secondary">
+          <span className="mt-4 inline-block text-sm text-accent">
             Abrir →
           </span>
         </Link>

@@ -1,15 +1,9 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import Providers from "./providers";
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-ppf",
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -29,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="es" className="dark">
       <body
-        className={`${jakarta.variable} flex min-h-screen flex-col bg-background text-white antialiased`}
+        className={`${GeistSans.variable} flex min-h-screen flex-col bg-background text-foreground antialiased`}
       >
         <Providers>
           <Navbar />

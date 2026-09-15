@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { CircleCheck, CircleX, LoaderCircle } from "lucide-react";
 
 const MIN_REASON = 5;
 
@@ -57,17 +58,23 @@ export default function PremiumActions({ requestId }: { requestId: string }) {
           type="button"
           onClick={() => resolve("approve")}
           disabled={busy !== null}
-          className={`${base} bg-secondary/15 text-secondary hover:bg-secondary/25`}
+          className={`${base} inline-flex items-center gap-1.5 bg-accent/15 text-accent hover:bg-accent/25`}
         >
-          {busy === "approve" ? "…" : "✅ Confirmar"}
+          {busy === "approve" ? (
+            <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <CircleCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
+          )}
+          Confirmar
         </button>
         <button
           type="button"
           onClick={() => setStep("reason")}
           disabled={busy !== null}
-          className={`${base} border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20`}
+          className={`${base} inline-flex items-center gap-1.5 border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20`}
         >
-          ❌ Rechazar
+          <CircleX className="h-3.5 w-3.5" strokeWidth={2.5} />
+          Rechazar
         </button>
       </div>
 
@@ -86,7 +93,7 @@ export default function PremiumActions({ requestId }: { requestId: string }) {
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               rows={4}
-              className="mt-4 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-muted/60 focus:border-secondary focus:outline-none"
+              className="mt-4 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-muted/60 focus:border-accent focus:outline-none"
               placeholder="Ej: no encontramos tu pago de 19 Bs con ese comprobante"
             />
             <div className="mt-5 flex justify-end gap-3">
@@ -137,9 +144,14 @@ export default function PremiumActions({ requestId }: { requestId: string }) {
                 type="button"
                 disabled={busy !== null}
                 onClick={() => resolve("reject", reason.trim())}
-                className={`${base} border border-red-500/30 bg-red-500/15 text-red-400 hover:bg-red-500/25`}
+                className={`${base} inline-flex items-center gap-1.5 border border-red-500/30 bg-red-500/15 text-red-400 hover:bg-red-500/25`}
               >
-                {busy === "reject" ? "…" : "Rechazar definitivamente"}
+                {busy === "reject" ? (
+                  <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <CircleX className="h-3.5 w-3.5" strokeWidth={2.5} />
+                )}
+                Rechazar definitivamente
               </button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import PremiumActions from "@/components/admin/PremiumActions";
+import { CircleCheck, TriangleAlert } from "lucide-react";
 
 // La cola debe reflejar el estado real: nada de caché.
 export const dynamic = "force-dynamic";
@@ -40,8 +41,9 @@ export default async function AdminPremiumPage() {
       </div>
 
       {requests.length === 0 ? (
-        <p className="mt-4 text-sm text-muted">
-          No hay solicitudes pendientes. 🎉
+        <p className="mt-4 flex items-center gap-2 text-sm text-muted">
+          <CircleCheck className="h-4 w-4 shrink-0 text-success" strokeWidth={2} />
+          No hay solicitudes pendientes.
         </p>
       ) : (
         <ul className="mt-5 divide-y divide-white/10">
@@ -71,13 +73,15 @@ export default async function AdminPremiumPage() {
                       Esperando hace {formatElapsed(mins)}
                     </span>
                     {urgent && (
-                      <span className="rounded-full bg-red-500/15 px-2 py-0.5 font-bold text-red-400">
-                        ⚠️ Urgente
+                      <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 font-bold text-red-400">
+                        <TriangleAlert className="h-3 w-3" strokeWidth={2.5} />
+                        Urgente
                       </span>
                     )}
                     {r.user.isPremium && (
-                      <span className="rounded-full bg-yellow-brand/15 px-2 py-0.5 text-yellow-brand">
-                        ⚠️ ya es Premium
+                      <span className="inline-flex items-center gap-1 rounded-full bg-warning/15 px-2 py-0.5 text-warning">
+                        <TriangleAlert className="h-3 w-3" strokeWidth={2.5} />
+                        ya es Premium
                       </span>
                     )}
                   </div>

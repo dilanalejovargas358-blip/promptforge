@@ -3,6 +3,7 @@ import type { PromptCardData } from "@/types";
 import { categoryMeta } from "@/components/ui/CategoryIcon";
 import SupportPromptButton from "@/components/prompts/SupportPromptButton";
 import ReportPromptButton from "@/components/prompts/ReportPromptButton";
+import { Bookmark, Eye, Star, Target } from "lucide-react";
 
 export default function PromptCard({
   prompt,
@@ -12,6 +13,7 @@ export default function PromptCard({
   index?: number;
 }) {
   const meta = categoryMeta(prompt.category);
+  const Icon = meta.icon;
   const delay = (index % 9) * 80;
   const tags = safeParseTags(prompt.tags);
 
@@ -38,16 +40,18 @@ export default function PromptCard({
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${meta.bg} ${meta.color}`}
           >
-            {meta.icon} {prompt.category}
+            <Icon className="h-3.5 w-3.5" strokeWidth={2} /> {prompt.category}
           </span>
           {prompt.isSponsored && (
-            <span className="inline-flex items-center rounded-lg bg-accent/20 px-2.5 py-1 text-[11px] font-black text-accent">
-              🎯 PATROCINADO
+            <span className="inline-flex items-center gap-1 rounded-lg bg-secondary/15 px-2.5 py-1 text-[11px] font-black text-secondary">
+              <Target className="h-3 w-3" strokeWidth={2.5} />
+              PATROCINADO
             </span>
           )}
           {prompt.isFeatured && (
-            <span className="inline-flex items-center rounded-lg bg-gradient-to-r from-yellow-brand to-primary px-2.5 py-1 text-[11px] font-black text-background shadow">
-              ★ DESTACADO
+            <span className="inline-flex items-center gap-1 rounded-lg bg-premium px-2.5 py-1 text-[11px] font-black text-background shadow">
+              <Star className="h-3 w-3 fill-background" strokeWidth={2.5} />
+              DESTACADO
             </span>
           )}
           <span className="rounded-full bg-white/5 px-2.5 py-1 text-[11px] font-medium text-muted">
@@ -87,7 +91,7 @@ export default function PromptCard({
 
           {/* Avatar con borde gradiente */}
           <div className="flex min-w-0 items-center gap-2">
-            <span className="rounded-full bg-gradient-to-br from-primary via-accent to-secondary p-[2px]">
+            <span className="rounded-full bg-accent p-[2px]">
               {prompt.author.image ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -96,7 +100,7 @@ export default function PromptCard({
                   className="h-8 w-8 rounded-full object-cover"
                 />
               ) : (
-                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1A1A2E] text-xs font-bold text-secondary">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-card text-xs font-bold text-accent">
                   {prompt.author.name?.charAt(0) ?? "?"}
                 </span>
               )}
@@ -109,15 +113,15 @@ export default function PromptCard({
           {/* Stats */}
           <div className="flex items-center gap-3 text-xs text-muted">
             <span className="flex items-center gap-1" title="Vistas">
-              👁️
+              <Eye className="h-3.5 w-3.5" strokeWidth={1.75} />
               <span className="tabular-nums">{prompt.views}</span>
             </span>
             <span className="flex items-center gap-1" title="Guardados">
-              🔖
+              <Bookmark className="h-3.5 w-3.5" strokeWidth={1.75} />
               <span className="tabular-nums">{prompt.savesCount}</span>
             </span>
             <span
-              className="flex items-center gap-1 text-secondary"
+              className="flex items-center gap-1 text-accent"
               title="Créditos recibidos como apoyo"
             >
               ⚡

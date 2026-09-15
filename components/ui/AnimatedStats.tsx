@@ -79,8 +79,12 @@ export default function AnimatedStats({
           className="fade-up text-center"
           style={{ animationDelay: `${i * 120 + 150}ms` }}
         >
-          <div className={`flex justify-center ${s.tint}`}>
-            <span className="text-2xl md:text-3xl">{s.icon}</span>
+          <div className="flex justify-center">
+            <div
+              className={`flex h-14 w-14 items-center justify-center rounded-full bg-accent/10 ${s.tint}`}
+            >
+              {s.icon}
+            </div>
           </div>
           <div className="mt-3 w-full text-5xl font-extrabold tracking-tight gradient-text md:text-6xl">
             <CountUp end={s.end} suffix={s.suffix} prefix={s.prefix} />

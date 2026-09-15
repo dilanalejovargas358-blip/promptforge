@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Medal, Star, Trophy } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
 export const metadata: Metadata = {
@@ -10,7 +11,13 @@ export const metadata: Metadata = {
 // Se recalcula en cada visita para reflejar los apoyos (recientes o históricos).
 export const dynamic = "force-dynamic";
 
-const MEDALS = ["🥇", "🥈", "🥉"];
+// Medallas de los tres primeros puestos. El color va en la clase, no en el
+// icono: lucide pinta con currentColor. Oro = el dorado de las insignias.
+const MEDALS = [
+  { Icon: Medal, cls: "text-premium" },
+  { Icon: Medal, cls: "text-zinc-300" },
+  { Icon: Medal, cls: "text-amber-700" },
+];
 
 type Period = "week" | "month" | "all";
 
@@ -157,7 +164,7 @@ export default async function RankingPage({
 
   return (
     <div className="relative min-h-screen">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-primary/10 via-accent/5 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-accent/10 via-accent/5 to-transparent" />
 
       <div className="relative mx-auto max-w-3xl px-4 py-12 md:px-6">
         <div className="fade-up text-center">
@@ -178,7 +185,7 @@ export default async function RankingPage({
               href={`/ranking?period=${p}`}
               className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
                 period === p
-                  ? "bg-secondary/20 text-secondary"
+                  ? "bg-accent/20 text-accent"
                   : "bg-white/5 text-muted hover:bg-white/10 hover:text-white"
               }`}
             >
@@ -189,7 +196,7 @@ export default async function RankingPage({
 
         {rows.length === 0 ? (
           <div className="fade-up glass mx-auto mt-10 max-w-md p-10 text-center text-muted">
-            <div className="text-4xl">🏆</div>
+            <Trophy className="mx-auto h-10 w-10 text-accent" strokeWidth={1.5} />
             <p className="mt-3 font-semibold">
               {period === "all"
                 ? "Aún no hay apoyos registrados. ¡Sé el primero en apoyar!"
@@ -203,6 +210,7 @@ export default async function RankingPage({
           >
             {rows.map((row) => {
               const featured = row.rank <= 3;
+              const medal = MEDALS[row.rank - 1];
               const ahead = row.rank > 1 ? rows[row.rank - 2] : undefined;
               const progress = ahead && ahead.earned > 0
                 ? Math.min(100, (row.earned / ahead.earned) * 100)
@@ -212,15 +220,22 @@ export default async function RankingPage({
                 <li
                   key={row.author.id}
                   className={`glass flex items-center gap-3 rounded-2xl p-3 transition-all duration-300 hover:border-white/20 sm:gap-4 sm:p-4 ${
-                    row.rank === 1 ? "ring-1 ring-yellow-brand/40" : ""
+                    row.rank === 1 ? "ring-1 ring-premium/40" : ""
                   }`}
                   style={{ animationDelay: `${row.rank * 80}ms` }}
                 >
-                  <span className="w-8 shrink-0 text-center text-xl font-black tabular-nums sm:w-10 sm:text-2xl">
-                    {MEDALS[row.rank - 1] ?? row.rank}
+                  <span className="flex w-8 shrink-0 items-center justify-center text-xl font-black tabular-nums sm:w-10 sm:text-2xl">
+                    {medal ? (
+                      <medal.Icon
+                        className={`h-7 w-7 ${medal.cls}`}
+                        strokeWidth={2}
+                      />
+                    ) : (
+                      row.rank
+                    )}
                   </span>
 
-                  <span className="shrink-0 rounded-full bg-gradient-to-br from-primary via-accent to-secondary p-[2px]">
+                  <span className="shrink-0 rounded-full bg-accent p-[2px]">
                     {row.author.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -229,7 +244,7 @@ export default async function RankingPage({
                         className="h-11 w-11 rounded-full object-cover"
                       />
                     ) : (
-                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1A1A2E] font-bold text-secondary">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-card font-bold text-accent">
                         {row.author.name?.charAt(0) ?? "?"}
                       </span>
                     )}
@@ -239,13 +254,14 @@ export default async function RankingPage({
                     <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={`/explore?authorId=${row.author.id}`}
-                        className="truncate font-bold transition-colors hover:text-secondary"
+                        className="truncate font-bold transition-colors hover:text-accent"
                       >
                         {row.author.name ?? "Creador"}
                       </Link>
                       {featured && (
-                        <span className="inline-flex items-center rounded-full bg-gradient-to-r from-yellow-brand to-primary px-2.5 py-0.5 text-[11px] font-black text-background shadow">
-                          ★ Creador Destacado
+                        <span className="inline-flex items-center gap-1 rounded-full bg-premium px-2.5 py-0.5 text-[11px] font-black text-background shadow">
+                          <Star className="h-3 w-3 fill-background" strokeWidth={2.5} />
+                          Creador Destacado
                         </span>
                       )}
                       {row.trend != null && row.trend > 0 && (
@@ -272,7 +288,7 @@ export default async function RankingPage({
                         </div>
                         <div className="h-1.5 w-full overflow-hidden rounded-full bg-white/10">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-secondary to-accent transition-all duration-500"
+                            className="h-full rounded-full bg-accent transition-all duration-500"
                             style={{ width: `${progress}%` }}
                           />
                         </div>
@@ -281,7 +297,7 @@ export default async function RankingPage({
                   </div>
 
                   <div className="shrink-0 text-right">
-                    <div className="text-xl font-black text-secondary tabular-nums">
+                    <div className="text-xl font-black text-accent tabular-nums">
                       ⚡ {row.earned}
                     </div>
                     <div className="text-[11px] uppercase text-muted">

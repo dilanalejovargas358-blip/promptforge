@@ -3,6 +3,15 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import {
+  CircleCheck,
+  CircleX,
+  Clipboard,
+  ClipboardList,
+  LoaderCircle,
+  Save,
+  Sparkles,
+} from "lucide-react";
 
 export default function GeneratorPage() {
   const router = useRouter();
@@ -101,12 +110,13 @@ export default function GeneratorPage() {
 
   return (
     <div className="relative min-h-screen">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-secondary/10 via-accent/5 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-accent/10 via-accent/5 to-transparent" />
 
       <div className="relative mx-auto max-w-4xl px-4 py-12 md:px-6">
         <div className="fade-up text-center">
-          <h1 className="text-3xl font-extrabold sm:text-4xl md:text-5xl">
-            <span className="gradient-text">✨ Generar Prompt</span>
+          <h1 className="flex flex-wrap items-center justify-center gap-3 text-3xl font-extrabold sm:text-4xl md:text-5xl">
+            <Sparkles className="h-7 w-7 text-accent md:h-9 md:w-9" strokeWidth={2} />
+            <span className="gradient-text">Generar Prompt</span>
           </h1>
           <p className="mx-auto mt-3 max-w-xl text-muted">
             Describe lo que quieres hacer y la IA creará un prompt profesional para ti.
@@ -123,12 +133,13 @@ export default function GeneratorPage() {
               onChange={(e) => setDescription(e.target.value)}
               rows={4}
               placeholder="Ej: Quiero un prompt para crear landing pages de alto rendimiento"
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-secondary focus:outline-none"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-accent focus:outline-none"
             />
             {outOfCredits ? (
-              <div className="mt-4 flex flex-col items-stretch gap-3 rounded-xl border border-primary/40 bg-primary/10 p-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
-                <p className="text-sm text-white">
-                  🚫 Te quedaste sin créditos IA. Suscríbete por $1.99 y obtén 25
+              <div className="mt-4 flex flex-col items-stretch gap-3 rounded-xl border border-danger/40 bg-danger/10 p-4 text-center sm:flex-row sm:items-center sm:justify-between sm:text-left">
+                <p className="flex items-center gap-2 text-sm text-white">
+                  <CircleX className="h-4 w-4 shrink-0 text-danger" strokeWidth={2} />
+                  Te quedaste sin créditos IA. Suscríbete por $1.99 y obtén 25
                   más.
                 </p>
                 <button
@@ -144,7 +155,17 @@ export default function GeneratorPage() {
                 disabled={loading || !description.trim()}
                 className="btn-primary mt-4 w-full disabled:opacity-60"
               >
-                {loading ? "⏳ Generando..." : "✨ Generar Prompt con IA"}
+                {loading ? (
+                  <>
+                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                    Generando...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" strokeWidth={2} />
+                    Generar Prompt con IA
+                  </>
+                )}
               </button>
             )}
 
@@ -158,7 +179,10 @@ export default function GeneratorPage() {
           <div className="fade-up mt-8" style={{ animationDelay: "200ms" }}>
             {summary && (
               <div className="glass mb-4 p-4">
-                <h4 className="mb-1 text-sm font-bold text-secondary">📌 Resumen</h4>
+                <h4 className="mb-1 flex items-center gap-1.5 text-sm font-bold text-accent">
+                  <ClipboardList className="h-4 w-4" strokeWidth={2} />
+                  Resumen
+                </h4>
                 <p className="text-sm text-muted">{summary}</p>
               </div>
             )}
@@ -169,15 +193,35 @@ export default function GeneratorPage() {
                 <div className="flex w-full flex-wrap gap-2 sm:w-auto">
                   <button
                     onClick={handleCopy}
-                    className="flex-1 rounded-lg bg-white/5 px-3 py-2.5 text-sm text-muted transition-colors hover:bg-white/10 sm:flex-none sm:py-1.5"
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-white/5 px-3 py-2.5 text-sm text-muted transition-colors hover:bg-white/10 sm:flex-none sm:py-1.5"
                   >
-                    {copied ? "✅ ¡Copiado!" : "📋 Copiar"}
+                    {copied ? (
+                      <>
+                        <CircleCheck className="h-4 w-4 text-success" strokeWidth={2} />
+                        ¡Copiado!
+                      </>
+                    ) : (
+                      <>
+                        <Clipboard className="h-4 w-4" strokeWidth={2} />
+                        Copiar
+                      </>
+                    )}
                   </button>
                   <button
                     onClick={handleSave}
-                    className="flex-1 rounded-lg bg-white/5 px-3 py-2.5 text-sm text-muted transition-colors hover:bg-white/10 sm:flex-none sm:py-1.5"
+                    className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-white/5 px-3 py-2.5 text-sm text-muted transition-colors hover:bg-white/10 sm:flex-none sm:py-1.5"
                   >
-                    {saved ? "✅ Guardado" : "💾 Guardar"}
+                    {saved ? (
+                      <>
+                        <CircleCheck className="h-4 w-4 text-success" strokeWidth={2} />
+                        Guardado
+                      </>
+                    ) : (
+                      <>
+                        <Save className="h-4 w-4" strokeWidth={2} />
+                        Guardar
+                      </>
+                    )}
                   </button>
                 </div>
               </div>

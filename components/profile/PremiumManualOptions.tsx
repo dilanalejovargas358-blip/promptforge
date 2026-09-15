@@ -5,6 +5,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { SUPPORT_EMAIL } from "@/lib/legal/types";
+import {
+  Check,
+  ChevronDown,
+  ChevronUp,
+  CircleCheck,
+  CircleX,
+  Clock,
+  CreditCard,
+  Gem,
+  LoaderCircle,
+  Sparkles,
+  Star,
+} from "lucide-react";
 
 // La verificación es manual: la espera da 15 minutos de margen antes de derivar
 // a soporte, y el sondeo busca la aprobación sin que el usuario recargue.
@@ -160,8 +173,8 @@ export default function PremiumManualOptions({
     return (
       <Shell>
         <div className="glass w-full p-10 text-center">
-          <div className="scale-in mx-auto flex h-24 w-24 items-center justify-center rounded-full border-4 border-secondary bg-secondary/15 text-5xl leading-none text-secondary">
-            ✓
+          <div className="scale-in mx-auto flex h-24 w-24 items-center justify-center rounded-full border-4 border-accent bg-accent/15 text-accent">
+            <Check className="h-12 w-12" strokeWidth={3} />
           </div>
           <h1 className="fade-in-delayed mt-6 text-3xl font-extrabold">
             ¡Premium activado!
@@ -180,8 +193,8 @@ export default function PremiumManualOptions({
     return (
       <Shell>
         <div className="glass w-full p-8 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-brand/15 text-3xl">
-            ⏳
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-warning/15 text-warning">
+            <Clock className="h-8 w-8" strokeWidth={1.75} />
           </div>
           <h1 className="mt-5 text-2xl font-extrabold">
             {activeMethod
@@ -205,7 +218,7 @@ export default function PremiumManualOptions({
               Si ya pasaron más de 15 minutos y no se activa, escríbenos a{" "}
               <a
                 href={`mailto:${SUPPORT_EMAIL}`}
-                className="font-semibold text-secondary"
+                className="font-semibold text-accent"
               >
                 {SUPPORT_EMAIL}
               </a>
@@ -232,8 +245,8 @@ export default function PremiumManualOptions({
     return (
       <Shell>
         <div className="glass w-full p-8 text-center">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/15 text-3xl">
-            ❌
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/15 text-red-400">
+            <CircleX className="h-8 w-8" strokeWidth={2} />
           </div>
           <h1 className="mt-5 text-2xl font-extrabold">
             No pudimos activar tu Premium
@@ -257,7 +270,7 @@ export default function PremiumManualOptions({
   type Method =
     | {
         id: MethodId;
-        icon: string;
+        icon: ReactNode;
         name: string;
         note: string;
         enabled: true;
@@ -266,11 +279,13 @@ export default function PremiumManualOptions({
         appName: string;
         steps: string[];
       }
-    | { id: "visa"; icon: string; name: string; note: string; enabled: false };
+    | { id: "visa"; icon: ReactNode; name: string; note: string; enabled: false };
 
   const methods: Method[] = [
     {
       id: "yolo",
+      // La bandera se queda como emoji a propósito: es la seña del método local
+      // y lucide no tiene iconos de banderas.
       icon: "🇧🇴",
       name: "Pago por QR - Bolivia",
       note: `${totalBs} Bs · disponible ahora`,
@@ -288,7 +303,7 @@ export default function PremiumManualOptions({
     },
     {
       id: "visa",
-      icon: "💳",
+      icon: <CreditCard className="h-6 w-6" strokeWidth={1.75} />,
       name: "Visa internacional (Meru)",
       note: "Pago con tarjeta desde el exterior",
       enabled: false,
@@ -314,12 +329,13 @@ export default function PremiumManualOptions({
 
   return (
     <div className="relative min-h-screen">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-secondary/10 via-accent/5 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-accent/10 via-accent/5 to-transparent" />
 
       <div className="relative mx-auto max-w-2xl px-4 py-12">
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold">
-            <span className="gradient-text">💎 Hazte Premium</span>
+          <h1 className="flex flex-wrap items-center justify-center gap-3 text-4xl font-extrabold">
+            <Gem className="h-8 w-8 text-accent md:h-9 md:w-9" strokeWidth={1.75} />
+            <span className="gradient-text">Hazte Premium</span>
           </h1>
           <p className="mt-3 text-muted">
             ${priceUsd}/mes · {totalBs} Bs al tipo de cambio de{" "}
@@ -328,8 +344,9 @@ export default function PremiumManualOptions({
         </div>
 
         {isPremium && (
-          <div className="mt-8 rounded-2xl border border-secondary/40 bg-secondary/10 p-4 text-center text-sm font-semibold text-secondary">
-            ⭐ Ya eres Premium. No necesitas hacer nada más.
+          <div className="mt-8 flex items-center justify-center gap-2 rounded-2xl border border-accent/40 bg-accent/10 p-4 text-center text-sm font-semibold text-accent">
+            <Star className="h-4 w-4 shrink-0 fill-accent" strokeWidth={2} />
+            Ya eres Premium. No necesitas hacer nada más.
           </div>
         )}
 
@@ -348,15 +365,21 @@ export default function PremiumManualOptions({
                   }`}
                 >
                   <span className="flex items-center gap-3">
-                    <span className="text-2xl">{m.icon}</span>
+                    <span className="flex w-6 shrink-0 items-center justify-center text-2xl leading-none text-muted">
+                      {m.icon}
+                    </span>
                     <span>
                       <span className="block font-bold">{m.name}</span>
                       <span className="block text-xs text-muted">{m.note}</span>
                     </span>
                   </span>
                   {m.enabled ? (
-                    <span className="shrink-0 text-xs text-muted">
-                      {isOpen ? "▲" : "▼"}
+                    <span className="shrink-0 text-muted">
+                      {isOpen ? (
+                        <ChevronUp className="h-4 w-4" strokeWidth={2.5} />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" strokeWidth={2.5} />
+                      )}
                     </span>
                   ) : (
                     <span className="shrink-0 rounded-full bg-white/5 px-3 py-1 text-xs font-bold text-muted">
@@ -399,7 +422,17 @@ export default function PremiumManualOptions({
                       disabled={sending || isPremium}
                       className="btn-primary mt-5 w-full disabled:opacity-50"
                     >
-                      {sending ? "Enviando…" : "✅ Ya pagué, activar Premium"}
+                      {sending ? (
+                        <>
+                          <LoaderCircle className="h-4 w-4 animate-spin" />
+                          Enviando…
+                        </>
+                      ) : (
+                        <>
+                          <CircleCheck className="h-4 w-4" strokeWidth={2.25} />
+                          Ya pagué, activar Premium
+                        </>
+                      )}
                     </button>
 
                     {error && (
@@ -416,13 +449,22 @@ export default function PremiumManualOptions({
 
         {/* Beneficios Premium */}
         <div className="glass mt-6 p-6">
-          <h3 className="text-lg font-bold text-secondary">✨ Beneficios Premium</h3>
+          <h3 className="flex items-center gap-1.5 text-lg font-bold text-accent">
+            <Sparkles className="h-4 w-4" strokeWidth={2} />
+            Beneficios Premium
+          </h3>
           <ul className="mt-3 space-y-2 text-sm text-muted">
-            <li>
-              ✅ <span className="text-white">25 créditos IA</span> cada mes
+            <li className="flex items-center gap-2">
+              <CircleCheck className="h-4 w-4 shrink-0 text-accent" strokeWidth={2.25} />
+              <span>
+                <span className="text-white">25 créditos IA</span> cada mes
+              </span>
             </li>
-            <li>
-              ✅ <span className="text-white">Insignia</span> de creador Premium
+            <li className="flex items-center gap-2">
+              <CircleCheck className="h-4 w-4 shrink-0 text-accent" strokeWidth={2.25} />
+              <span>
+                <span className="text-white">Insignia</span> de creador Premium
+              </span>
             </li>
           </ul>
         </div>
@@ -436,7 +478,7 @@ export default function PremiumManualOptions({
 function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="relative min-h-screen">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-secondary/10 via-accent/5 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[400px] bg-gradient-to-b from-accent/10 via-accent/5 to-transparent" />
       <div className="relative mx-auto flex min-h-screen max-w-2xl items-center justify-center px-4 py-12">
         {children}
       </div>

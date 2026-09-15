@@ -77,7 +77,7 @@ function LoginContent() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10 sm:px-6">
-      <div className="pointer-events-none absolute -top-20 left-1/4 h-[300px] w-[300px] rounded-full bg-secondary/20 blur-[110px]" />
+      <div className="pointer-events-none absolute -top-20 left-1/4 h-[300px] w-[300px] rounded-full bg-accent/20 blur-[110px]" />
       <div className="pointer-events-none absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-accent/20 blur-[110px]" />
 
       <div className="glass relative w-full max-w-md p-6 sm:p-8">
@@ -145,7 +145,7 @@ function LoginContent() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="tu@email.com"
-              className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-secondary focus:outline-none"
+              className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-accent focus:outline-none"
             />
           </div>
           <div>
@@ -158,7 +158,7 @@ function LoginContent() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-secondary focus:outline-none"
+              className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-accent focus:outline-none"
             />
           </div>
 
@@ -179,7 +179,7 @@ function LoginContent() {
 
         <p className="mt-6 text-center text-sm text-muted">
           ¿No tienes cuenta?{" "}
-          <Link href="/register" className="font-semibold text-secondary hover:underline">
+          <Link href="/register" className="font-semibold text-accent hover:underline">
             Regístrate
           </Link>
         </p>

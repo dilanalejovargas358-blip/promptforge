@@ -43,7 +43,7 @@ export default function RegisterPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10 sm:px-6">
       <div className="pointer-events-none absolute -top-20 left-1/4 h-[300px] w-[300px] rounded-full bg-accent/20 blur-[110px]" />
-      <div className="pointer-events-none absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-primary/20 blur-[110px]" />
+      <div className="pointer-events-none absolute bottom-0 right-1/4 h-[300px] w-[300px] rounded-full bg-accent/20 blur-[110px]" />
 
       <div className="glass relative w-full max-w-md p-6 sm:p-8">
         <h1 className="text-center text-3xl font-extrabold">
@@ -95,7 +95,7 @@ export default function RegisterPage() {
           </div>
 
           {error && (
-            <p className="rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary">
+            <p className="rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">
               {error}
             </p>
           )}
@@ -111,7 +111,7 @@ export default function RegisterPage() {
 
         <p className="mt-6 text-center text-sm text-muted">
           ¿Ya tienes cuenta?{" "}
-          <Link href="/login" className="font-semibold text-secondary hover:underline">
+          <Link href="/login" className="font-semibold text-accent hover:underline">
             Inicia sesión
           </Link>
         </p>

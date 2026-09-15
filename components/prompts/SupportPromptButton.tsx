@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Heart, LoaderCircle } from "lucide-react";
 
 interface SupportPromptButtonProps {
   promptId: string;
@@ -30,7 +31,7 @@ export default function SupportPromptButton({
       const data = await res.json();
       if (res.ok && data.ok) {
         setTotal(data.totalCredits ?? total + 1);
-        setMessage({ text: "¡Gracias por apoyar! ❤️", ok: true });
+        setMessage({ text: "¡Gracias por apoyar!", ok: true });
       } else {
         setMessage({ text: data?.error ?? "No se pudo apoyar.", ok: false });
       }
@@ -50,14 +51,20 @@ export default function SupportPromptButton({
         aria-label="Apoyar este prompt con 1 rayito"
         className="btn-secondary !px-3 !py-1.5 text-xs disabled:opacity-60"
       >
-        {busy ? "…" : `⚡ Apoyar · ${total}`}
+        {busy ? (
+          <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          // El ⚡ se queda: es la marca visual de los rayitos, no un icono genérico.
+          `⚡ Apoyar · ${total}`
+        )}
       </button>
       {message && (
         <span
-          className={`text-[11px] leading-tight ${
-            message.ok ? "text-secondary" : "text-red-400"
+          className={`inline-flex items-center gap-1 text-[11px] leading-tight ${
+            message.ok ? "text-accent" : "text-red-400"
           }`}
         >
+          {message.ok && <Heart className="h-3 w-3 fill-current" strokeWidth={2} />}
           {message.text}
         </span>
       )}

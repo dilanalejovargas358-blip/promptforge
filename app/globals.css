@@ -3,13 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --background: #0a0a0f;
-  --card: #1a1a2e;
-  --primary: #ff6b6b;
-  --secondary: #4ecdc4;
-  --accent: #c084fc;
-  --yellow-brand: #ffe66d;
-  --muted: #b8b8d0;
+  --background: #0f0f0f;
+  --card: #181818;
+  --border: #2a2a2a;
+  --foreground: #fafafa;
+  --muted: #a1a1aa;
+  --accent: #f59e0b;
+  --accent-hover: #d97706;
+  --secondary: #a78bfa;
+  --premium: #d4af37;
 }
 
 * {
@@ -21,23 +23,36 @@ html {
 }
 
 body {
-  background-color: #0a0a0f;
-  color: #ffffff;
-  font-family: var(--font-ppf), system-ui, -apple-system, "Segoe UI", Roboto,
-    sans-serif;
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
-/* ---- Fondo de malla + orbes de color (ambiental) ---- */
+/* ---- Fondo ambiental: halo central cálido + dos orbes tenues en las esquinas
+   (ámbar arriba-izquierda, violeta abajo-derecha) para que el fondo no quede
+   como un plano muerto. ---- */
 .hero-bg {
-  background:
-    radial-gradient(60% 45% at 15% 20%, rgba(255, 107, 107, 0.28) 0%, transparent 60%),
-    radial-gradient(55% 45% at 85% 15%, rgba(192, 132, 252, 0.28) 0%, transparent 60%),
-    radial-gradient(50% 50% at 50% 90%, rgba(78, 205, 196, 0.22) 0%, transparent 60%),
-    radial-gradient(40% 40% at 70% 70%, rgba(255, 230, 109, 0.14) 0%, transparent 60%),
-    #0a0a0f;
+  background: radial-gradient(
+      ellipse 60% 50% at 50% 40%,
+      rgba(245, 158, 11, 0.15),
+      transparent 70%
+    ),
+    radial-gradient(circle at 15% 20%, rgba(245, 158, 11, 0.1), transparent 50%),
+    radial-gradient(circle at 85% 80%, rgba(167, 139, 250, 0.08), transparent 50%),
+    var(--background);
+}
+
+/* Título del Hero: degradado de dos tonos de la misma familia (ámbar claro →
+   naranja quemado). Estático a propósito: nada de gradientShift. */
+.title-gradient {
+  background: linear-gradient(135deg, #fcd34d 0%, #f59e0b 50%, #ea580c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .grid-overlay {
@@ -47,96 +62,37 @@ body {
   mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
 }
 
-/* ---- Efecto glassmorphism ---- */
+/* ---- Superficies ---- */
 .glass {
-  background: rgba(26, 26, 46, 0.45);
-  backdrop-filter: blur(18px) saturate(150%);
-  -webkit-backdrop-filter: blur(18px) saturate(150%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(24, 24, 24, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
   border-radius: 1rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06),
-    0 8px 40px rgba(0, 0, 0, 0.45);
 }
 
 .glass-strong {
-  background: rgba(26, 26, 46, 0.7);
-  backdrop-filter: blur(22px) saturate(160%);
-  -webkit-backdrop-filter: blur(22px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(24, 24, 24, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--border);
   border-radius: 1rem;
 }
 
-/* Borde con gradiente animado */
+/* Conserva el nombre para no tocar los sitios que la usan, pero ya no es un
+   borde con gradiente: es un borde sólido que se ilumina con el acento. */
 .gradient-border {
-  position: relative;
-  background-clip: padding-box;
-  border: 1px solid transparent;
+  border: 1px solid var(--border);
+  transition: border-color 0.2s ease;
 }
-.gradient-border::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  background: linear-gradient(
-    135deg,
-    var(--primary),
-    var(--yellow-brand),
-    var(--secondary),
-    var(--accent)
-  );
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0.5;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-.gradient-border:hover::before {
-  opacity: 1;
+.gradient-border:hover {
+  border-color: rgba(245, 158, 11, 0.45);
 }
 
-/* ---- Texto con gradiente animado ---- */
+/* Igual que la anterior: mantiene el nombre por compatibilidad, pero ya no hay
+   degradado ni animación, solo el color de acento. */
 .gradient-text {
-  background: linear-gradient(
-    90deg,
-    #ff6b6b 0%,
-    #ffb347 25%,
-    #ffe66d 45%,
-    #4ecdc4 68%,
-    #c084fc 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: gradientShift 6s ease-in-out infinite alternate;
-}
-
-@keyframes gradientShift {
-  0% {
-    background-position: 0% center;
-  }
-  100% {
-    background-position: 100% center;
-  }
-}
-
-/* Glow animado para el título del hero */
-.glow-pulse {
-  filter: drop-shadow(0 0 24px rgba(255, 107, 107, 0.4));
-  animation: glowPulse 4s ease-in-out infinite;
-}
-@keyframes glowPulse {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 18px rgba(255, 107, 107, 0.3))
-      drop-shadow(0 0 40px rgba(192, 132, 252, 0.2));
-  }
-  50% {
-    filter: drop-shadow(0 0 30px rgba(255, 230, 109, 0.4))
-      drop-shadow(0 0 60px rgba(78, 205, 196, 0.25));
-  }
+  color: var(--accent);
 }
 
 /* ---- Botones ---- */
@@ -153,35 +109,31 @@ body {
   font-size: 0.95rem;
   border: none;
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.2s ease, border-color 0.2s ease;
   letter-spacing: 0.01em;
   overflow: hidden;
   white-space: nowrap;
 }
 
 .btn-primary {
-  color: #0a0a0f;
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff9a6b 45%, #ffe66d 100%);
-  background-size: 180% auto;
-  box-shadow: 0 8px 30px rgba(255, 107, 107, 0.35);
+  color: var(--background);
+  background: var(--accent);
 }
 .btn-primary:hover {
-  transform: translateY(-3px);
-  background-position: right center;
-  box-shadow: 0 14px 40px rgba(255, 107, 107, 0.55);
+  transform: translateY(-1px);
+  background: var(--accent-hover);
 }
 
 .btn-secondary {
-  color: #ffffff;
-  background: linear-gradient(135deg, #4ecdc4 0%, #6ec5ff 50%, #c084fc 100%);
-  background-size: 180% auto;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 8px 30px rgba(78, 205, 196, 0.28);
+  color: var(--foreground);
+  background: transparent;
+  border: 1px solid var(--border);
 }
 .btn-secondary:hover {
-  transform: translateY(-3px);
-  background-position: right center;
-  box-shadow: 0 14px 44px rgba(192, 132, 252, 0.5);
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .btn-lg {
@@ -269,7 +221,7 @@ body {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: conic-gradient(from 0deg, #ff6b6b, #ffe66d, #4ecdc4, #c084fc, #ff6b6b);
+  background: conic-gradient(from 0deg, var(--accent), rgba(245, 158, 11, 0.12), var(--accent));
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
   mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 0);
   animation: spin 0.9s linear infinite;
@@ -292,7 +244,7 @@ body {
   height: 2px;
   width: 0;
   border-radius: 2px;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
+  background: var(--accent);
   transition: width 0.3s ease;
 }
 .nav-link:hover::after {
@@ -305,9 +257,8 @@ body {
 }
 .field-glow:focus {
   outline: none;
-  border-color: var(--secondary) !important;
-  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.18),
-    0 0 24px rgba(78, 205, 196, 0.15);
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
 }
 
 /* Enlace de texto genérico */
@@ -317,7 +268,7 @@ a {
 }
 
 ::selection {
-  background: rgba(192, 132, 252, 0.4);
+  background: rgba(245, 158, 11, 0.35);
 }
 
 /* Scrollbar */
@@ -325,14 +276,14 @@ a {
   width: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0f;
+  background: var(--background);
 }
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(#2a2a3e, #3a3a52);
+  background: #2a2a2a;
   border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4a4a66;
+  background: #3f3f46;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Hero from "@/components/layout/Hero";
 import { GlowButtonLink } from "@/components/ui/GlowButton";
+import { Lock, Palette, ShieldCheck } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "El mercado más seguro de prompts para IA",
@@ -12,19 +13,19 @@ export const revalidate = 30;
 
 const FEATURES = [
   {
-    icon: "🛡️",
+    icon: ShieldCheck,
     title: "Curaduría estricta",
     text: "Cada prompt pasa por revisión humana antes de publicarse. Nada de basura.",
-    grad: "from-primary/20 to-primary/0",
+    grad: "from-accent/20 to-accent/0",
   },
   {
-    icon: "🔒",
+    icon: Lock,
     title: "Pagos seguros",
     text: "Sistema de créditos y pagos protegidos end-to-end para creadores y compradores.",
-    grad: "from-secondary/20 to-secondary/0",
+    grad: "from-accent/20 to-accent/0",
   },
   {
-    icon: "🎨",
+    icon: Palette,
     title: "Multi-modelo",
     text: "Prompts optimizados para ChatGPT, Midjourney, Claude, DALL-E y Stable Diffusion.",
     grad: "from-accent/20 to-accent/0",
@@ -39,7 +40,7 @@ export default function HomePage() {
       {/* Sección de características */}
       <section className="relative mx-auto w-full max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
         <div className="mb-10 text-center">
-          <span className="text-xs font-bold uppercase tracking-[0.3em] text-secondary">
+          <span className="text-xs font-bold uppercase tracking-[0.3em] text-accent">
             Por qué PromptForge
           </span>
           <h2 className="mt-3 text-3xl font-extrabold sm:text-4xl md:text-5xl">
@@ -55,9 +56,9 @@ export default function HomePage() {
               style={{ animationDelay: `${i * 120}ms` }}
             >
               <div
-                className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-3xl ${f.grad} ring-1 ring-white/10`}
+                className={`flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br text-accent ${f.grad} ring-1 ring-white/10`}
               >
-                {f.icon}
+                <f.icon className="h-7 w-7" strokeWidth={1.75} />
               </div>
               <h3 className="mt-5 text-lg font-bold sm:text-xl">{f.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted">{f.text}</p>

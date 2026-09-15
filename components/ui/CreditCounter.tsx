@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { CreditCard } from "lucide-react";
 
 interface CreditCounterProps {
   initialCredits?: number | null;
@@ -46,7 +47,7 @@ export default function CreditCounter({
       className={`inline-flex items-center gap-1.5 text-muted ${className}`}
       title="Tus créditos"
     >
-      💳
+      <CreditCard className="h-4 w-4 text-accent" strokeWidth={1.75} />
       <span className="tabular-nums font-semibold text-white">
         {ready ? (credits ?? "–") : "…"}
       </span>

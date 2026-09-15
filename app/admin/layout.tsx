@@ -31,7 +31,7 @@ export default async function AdminLayout({
     <div className="mx-auto w-full max-w-5xl px-4 py-12 sm:px-6">
       <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <span className="text-xs font-bold uppercase tracking-[0.3em] text-primary">
+          <span className="text-xs font-bold uppercase tracking-[0.3em] text-accent">
             Administración
           </span>
           <h1 className="mt-2 text-3xl font-extrabold sm:text-4xl">

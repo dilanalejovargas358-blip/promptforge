@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { LoaderCircle, Rocket, Sparkles, X } from "lucide-react";
 
 const CATEGORIES = [
   "Escritura",
@@ -37,9 +38,9 @@ function slugify(text: string): string {
 }
 
 const inputCls =
-  "w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-secondary focus:outline-none";
+  "w-full rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-white placeholder:text-muted/60 focus:border-accent focus:outline-none";
 const selectCls =
-  "w-full rounded-xl border border-white/15 bg-[#1A1A2E] px-4 py-3 text-white focus:border-secondary focus:outline-none";
+  "w-full rounded-xl border border-white/15 bg-card px-4 py-3 text-white focus:border-accent focus:outline-none";
 
 export default function PromptForm() {
   const router = useRouter();
@@ -239,10 +240,10 @@ export default function PromptForm() {
               <button
                 type="button"
                 onClick={() => setTags(tags.filter((t) => t !== tag))}
-                className="text-muted hover:text-white"
+                className="flex items-center text-muted hover:text-white"
                 aria-label={`Eliminar tag ${tag}`}
               >
-                ✕
+                <X className="h-3.5 w-3.5" strokeWidth={2.5} />
               </button>
             </span>
           ))}
@@ -261,17 +262,31 @@ export default function PromptForm() {
 
       <p className="text-sm text-muted">
         Todos los prompts son gratis. Los apoyos de la comunidad son el motor
-        del ranking de creadores. ✨
+        del ranking de creadores.{" "}
+        <Sparkles
+          className="inline h-4 w-4 -translate-y-px text-accent"
+          strokeWidth={2}
+        />
       </p>
 
       {error && (
-        <p className="rounded-xl bg-primary/10 px-4 py-3 text-sm text-primary">
+        <p className="rounded-xl bg-danger/10 px-4 py-3 text-sm text-danger">
           {error}
         </p>
       )}
 
       <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-60">
-        {loading ? "Publicando..." : "🚀 Publicar Prompt"}
+        {loading ? (
+          <>
+            <LoaderCircle className="h-4 w-4 animate-spin" />
+            Publicando...
+          </>
+        ) : (
+          <>
+            <Rocket className="h-4 w-4" strokeWidth={2} />
+            Publicar Prompt
+          </>
+        )}
       </button>
     </form>
   );

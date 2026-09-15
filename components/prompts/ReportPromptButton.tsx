@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { CircleCheck, Flag, X } from "lucide-react";
 
 const MIN = 10;
 const MAX = 500;
@@ -68,12 +69,13 @@ export default function ReportPromptButton({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={
+        className={`inline-flex items-center gap-1.5 ${
           className ||
           "rounded-full px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-red-400"
-        }
+        }`}
       >
-        🚩 Reportar
+        <Flag className="h-3.5 w-3.5" strokeWidth={2} />
+        Reportar
       </button>
 
       {open && (
@@ -94,9 +96,9 @@ export default function ReportPromptButton({
                 type="button"
                 onClick={close}
                 aria-label="Cerrar"
-                className="text-xl leading-none text-muted transition-colors hover:text-white"
+                className="text-muted transition-colors hover:text-white"
               >
-                ✕
+                <X className="h-5 w-5" strokeWidth={2} />
               </button>
             </div>
 
@@ -115,8 +117,9 @@ export default function ReportPromptButton({
               </>
             ) : done ? (
               <>
-                <p className="mt-4 rounded-xl bg-secondary/10 px-4 py-4 text-sm font-semibold text-secondary">
-                  ✅ Reporte enviado, gracias. Un administrador lo revisará.
+                <p className="mt-4 flex items-center gap-2 rounded-xl bg-accent/10 px-4 py-4 text-sm font-semibold text-accent">
+                  <CircleCheck className="h-4 w-4 shrink-0" strokeWidth={2.25} />
+                  Reporte enviado, gracias. Un administrador lo revisará.
                 </p>
                 <button
                   type="button"
@@ -142,7 +145,7 @@ export default function ReportPromptButton({
                   className="field-glow mt-4 w-full resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-muted/60"
                 />
                 <div className="mt-1.5 flex items-center justify-between text-xs">
-                  <span className={tooShort ? "text-muted" : "text-secondary"}>
+                  <span className={tooShort ? "text-muted" : "text-accent"}>
                     {reason.trim().length}/{MAX}
                   </span>
                   {tooShort && (

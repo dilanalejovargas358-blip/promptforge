@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { CircleCheck, EyeOff, LoaderCircle, Trash2 } from "lucide-react";
 
 type Action = "hide" | "remove" | "dismiss";
 
@@ -68,25 +69,40 @@ export default function ReportActions({ reportId }: { reportId: string }) {
           type="button"
           onClick={() => handleClick("hide")}
           disabled={pending !== null}
-          className={`${base} bg-yellow-brand/15 text-yellow-brand hover:bg-yellow-brand/25`}
+          className={`${base} inline-flex items-center gap-1.5 bg-warning/15 text-warning hover:bg-warning/25`}
         >
-          {pending === "hide" ? "…" : `🙈 ${LABELS.hide}`}
+          {pending === "hide" ? (
+            <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <EyeOff className="h-3.5 w-3.5" strokeWidth={2.5} />
+          )}
+          {LABELS.hide}
         </button>
         <button
           type="button"
           onClick={() => handleClick("remove")}
           disabled={pending !== null}
-          className={`${base} border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20`}
+          className={`${base} inline-flex items-center gap-1.5 border border-red-500/30 bg-red-500/10 text-red-400 hover:bg-red-500/20`}
         >
-          {pending === "remove" ? "…" : `🗑️ ${LABELS.remove}`}
+          {pending === "remove" ? (
+            <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Trash2 className="h-3.5 w-3.5" strokeWidth={2.5} />
+          )}
+          {LABELS.remove}
         </button>
         <button
           type="button"
           onClick={() => handleClick("dismiss")}
           disabled={pending !== null}
-          className={`${base} bg-white/5 text-muted hover:bg-white/10 hover:text-white`}
+          className={`${base} inline-flex items-center gap-1.5 bg-white/5 text-muted hover:bg-white/10 hover:text-white`}
         >
-          {pending === "dismiss" ? "…" : `✅ ${LABELS.dismiss}`}
+          {pending === "dismiss" ? (
+            <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <CircleCheck className="h-3.5 w-3.5" strokeWidth={2.5} />
+          )}
+          {LABELS.dismiss}
         </button>
       </div>
       {error && <p className="text-xs text-red-400">{error}</p>}

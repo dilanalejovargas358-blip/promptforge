@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import ReportActions from "@/components/admin/ReportActions";
+import { CircleCheck } from "lucide-react";
 // La cola debe reflejar el estado real: nada de caché.
 export const dynamic = "force-dynamic";
 
@@ -32,8 +33,9 @@ export default async function AdminReportsPage() {
       </div>
 
       {reports.length === 0 ? (
-        <p className="mt-4 text-sm text-muted">
-          No hay reportes pendientes. 🎉
+        <p className="mt-4 flex items-center gap-2 text-sm text-muted">
+          <CircleCheck className="h-4 w-4 shrink-0 text-success" strokeWidth={2} />
+          No hay reportes pendientes.
         </p>
       ) : (
         <ul className="mt-5 divide-y divide-white/10">
@@ -45,7 +47,7 @@ export default async function AdminReportsPage() {
               <div className="min-w-0">
                 <Link
                   href={`/prompt/${r.prompt.id}`}
-                  className="font-bold transition-colors hover:text-secondary"
+                  className="font-bold transition-colors hover:text-accent"
                 >
                   {r.prompt.title}
                 </Link>
@@ -57,7 +59,7 @@ export default async function AdminReportsPage() {
                     </span>
                   )}
                   {r.prompt.moderationStatus !== "OK" && (
-                    <span className="rounded-full bg-yellow-brand/15 px-2 py-0.5 text-yellow-brand">
+                    <span className="rounded-full bg-warning/15 px-2 py-0.5 text-warning">
                       {r.prompt.moderationStatus}
                     </span>
                   )}
